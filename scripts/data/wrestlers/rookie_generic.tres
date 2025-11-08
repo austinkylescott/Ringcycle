@@ -1,0 +1,7 @@
+[gd_resource type="Resource" script_class="WrestlerResource" load_steps=2 format=3 uid="uid://cmkpqojjxn0e6"]
+
+[ext_resource type="Script" uid="uid://b5aqxylnnb2ia" path="res://scripts/data/WrestlerResource.gd" id="1_kisjs"]
+
+[resource]
+script = ExtResource("1_kisjs")
+metadata/_custom_type_script = "uid://b5aqxylnnb2ia"

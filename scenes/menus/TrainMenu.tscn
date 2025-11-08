@@ -1,0 +1,65 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqd2r125vcqmu"]
+
+[ext_resource type="Script" uid="uid://bjleoh6a4yj1t" path="res://scripts/ui/train_menu.gd" id="1_t7pn6"]
+
+[node name="TrainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_t7pn6")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -112.5
+offset_bottom = 112.5
+grow_horizontal = 0
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Select Today's Training"
+
+[node name="StrengthButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Strength (+STR)"
+
+[node name="TechniqueButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Technique (+TEC)"
+
+[node name="ConditioningButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Conditioning (+STA)"
+
+[node name="ShowmanshipButton" type="Button" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Showmanship  (+CHA)"
+
+[node name="SelectedLabel" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+text = "Selected: (none)"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+disabled = true
+text = "Confirm"
+
+[node name="CancelButton" type="Button" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Cancel"
