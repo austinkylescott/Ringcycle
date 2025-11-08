@@ -13,13 +13,14 @@ class_name WrestlerResource
 @export var stamina:int = 60		# Life
 @export var charisma:int = 55	# Intelligence
 
-# Lifestyle Stats
+# Support Stats
 @export var fatigue:int = 0
 @export var morale:float = 0.5	# 0-1
 @export var momentum:int = 0		# Battle Resource (Guts)
+@export var fame:int = 0
 @export var days_lived:int = 0
 
 # Learned Moves
-@export var learned_moved:Array[String] = []
+@export var learned_moves:Array[String] = []
 #Legacy Bonuses (small % growth adders)
 @export var legacy_growth_bonus:float = 0.0

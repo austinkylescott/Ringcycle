@@ -10,14 +10,14 @@ func evolve(w:Wrestler) -> void:
 	# Bruiser: High STR, low morale
 	# Showstopper: Balanced, high CHA
 	# Ring General: High technique + toughness
-	
+
 	var strength = w.res.strength
 	var technique = w.res.technique
 	var agility = w.res.agility
 	var toughness = w.res.toughness
 	var charisma = w.res.charisma
 	var morale = w.res.morale
-	
+
 	if strength >= max(technique,agility,toughness, charisma) and morale < 0.4:
 		_apply_bruiser(w)
 	elif abs(strength - technique) <=5 and charisma >= 65:

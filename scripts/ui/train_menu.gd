@@ -20,10 +20,10 @@ func _ready() -> void:
 	tech_btn.pressed.connect(func(): _set_choice("Technique Practice"))
 	cond_btn.pressed.connect(func(): _set_choice("Conditioning"))
 	showmanship_btn.pressed.connect(func():_set_choice("Showmanship"))
-	
+
 	confirm_btn.pressed.connect(_on_confirm_pressed)
 	cancel_btn.pressed.connect(_on_cancel_pressed)
-	
+
 	confirm_btn.disabled = true;
 	selected_label.text = "Selected: (none)"
 
@@ -31,7 +31,7 @@ func _set_choice(choice: String) -> void:
 	_pending_choice = choice
 	selected_label.text = "Selected: %s" % choice
 	confirm_btn.disabled = false
-	
+
 func _on_confirm_pressed() -> void:
 	if _pending_choice == "":
 		return

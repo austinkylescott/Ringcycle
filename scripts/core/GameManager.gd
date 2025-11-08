@@ -24,7 +24,7 @@ func load_new_wrestler(path:String) -> void:
 	current_wrestler_node = Wrestler.new()
 	current_wrestler_node.apply_resource(current_wrestler_res)
 	emit_signal("wrestler_changed", current_wrestler_node)
-	
+
 func advance_day() -> void:
 	day +=1
 	if day > 7:
