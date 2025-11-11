@@ -1,7 +1,7 @@
 extends Node
 class_name TrainingSystem
 
-func get_training_delta(action_name: String) -> Dictionary:
+func get_base_delta(action_name: String) -> Dictionary:
 	match action_name:
 		"Strength Drill":
 			return {"strength": +5, "toughness": +2, "agility": -1, "fatigue": +10, "morale": -.02}
@@ -16,6 +16,25 @@ func get_training_delta(action_name: String) -> Dictionary:
 		_:
 			return {}
 
-func apply_training(wrestler:Wrestler, action_name:String) -> void:
-	var delta := get_training_delta(action_name)
-	wrestler.add_stats(delta)
+
+func compute_effective_delta(w:Wrestler, base:Dictionary) -> Dictionary:
+	var eff := {}
+	var efficiency := w.get_training_efficiency()
+
+	for key in base.keys():
+		var value = base[key]
+
+		if key in StatDefs.CORE:
+			var growth_mult := float(w.get_growth_multiplier(key))
+			eff[key] = round(value * growth_mult * efficiency)
+		elif key == "fatigue" or key == "morale":
+			# Could also scale these with efficiency
+			eff[key] = value
+		else:
+			eff[key] = value
+	return eff
+
+func apply_training(w:Wrestler, action_name:String) -> void:
+	var base := get_base_delta(action_name)
+	var delta := compute_effective_delta(w, base)
+	w.add_stats(delta)

@@ -1,6 +1,8 @@
 extends Resource
 class_name WrestlerResource
 
+@export var species: WrestlerSpeciesResource
+
 @export var display_name:String = "Rookie"
 @export var stage:String = "Rookie" # Rookie/Pro/Headliner/Superstar
 @export var lifespan_days:int = 365*5
@@ -22,5 +24,8 @@ class_name WrestlerResource
 
 # Learned Moves
 @export var learned_moves:Array[String] = []
-#Legacy Bonuses (small % growth adders)
+# Legacy Bonuses (small % growth adders)
 @export var legacy_growth_bonus:float = 0.0
+
+# Active Effects
+@export var active_effects: Array[StatEffect] = []

@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="WrestlerSpeciesResource" load_steps=2 format=3 uid="uid://rookie_species_001"]
+
+[ext_resource type="Script" uid="uid://wrestler_species_script" path="res://scripts/data/WrestlerSpeciesResource.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+
+id = "rookie"
+display_name = "Rookie"
+
+base_stats = {
+    "strength": 50,
+    "technique": 45,
+    "agility": 35,
+    "toughness": 40,
+    "stamina": 60,
+    "charisma": 55,
+}
+
+# Baseline growth multipliers
+growth_profile = {
+    "strength": 1.1,
+    "technique": 1.0,
+    "agility": 1.0,
+    "toughness": 1.0,
+    "stamina": 0.95,
+    "charisma": 1.0,
+}
+
+move_pool = []
