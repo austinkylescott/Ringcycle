@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://species_smoke_test_scene"]
+
+[ext_resource path="res://scripts/tests/species_smoke_test.gd" type="Script" id="1"]
+
+[node name="SpeciesSmokeTest" type="Node"]
+script = ExtResource( "1" )
