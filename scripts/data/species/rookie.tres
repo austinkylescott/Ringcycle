@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="WrestlerSpeciesResource" load_steps=2 format=3 uid="uid://rookie_species_001"]
 
-[ext_resource type="Script" uid="uid://wrestler_species_script" path="res://scripts/data/WrestlerSpeciesResource.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/data/WrestlerSpeciesResource.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
