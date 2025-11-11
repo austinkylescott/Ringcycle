@@ -37,20 +37,21 @@ func _ready() -> void:
     var s2_before = w2.get_stat("strength")
     print("[Test] initial strengths:", s1_before, s2_before)
 
-    # Apply training to w1 only
+    # Compute expected delta based on pre-training state, then apply training to w1 only
+    var expected_delta = round(5 * w1.get_growth_multiplier("strength") * w1.get_training_efficiency())
     var ts = TrainingSystem.new()
     ts.apply_training(w1, "Strength Drill")
 
     var s1_after = w1.get_stat("strength")
     var s2_after = w2.get_stat("strength")
 
-    var expected_delta = round(5 * w1.get_growth_multiplier("strength") * w1.get_training_efficiency())
     var actual_delta = int(s1_after - s1_before)
 
     if actual_delta == expected_delta:
         print("[Test] PASS: strength increased by expected delta:", actual_delta)
     else:
         push_error("[Test] FAIL: strength delta expected %s but got %s" % [expected_delta, actual_delta])
+        print("[Test] debug: expected (pre)=", expected_delta, "actual=", actual_delta, "s1_before=", s1_before, "s1_after=", s1_after, "eff_pre=", (5 * w1.get_growth_multiplier("strength") * w1.get_training_efficiency()))
 
     # Ensure w2 unchanged
     if s2_after == s2_before:
