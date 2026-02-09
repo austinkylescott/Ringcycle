@@ -1,10 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://by3t4cj58aqh7"]
+[gd_scene format=3 uid="uid://by3t4cj58aqh7"]
 
 [ext_resource type="Script" uid="uid://bmrb32yogxde8" path="res://scripts/ui/GymHub.gd" id="1_d3a6v"]
 [ext_resource type="Script" uid="uid://bn6hp8voyikr8" path="res://scripts/core/TrainingSystem.gd" id="2_yogjq"]
 [ext_resource type="Script" uid="uid://cdxybojcabrnp" path="res://scripts/core/CalendarSystem.gd" id="3_slykc"]
 
-[node name="GymHub" type="Control"]
+[node name="GymHub" type="Control" unique_id=1105347267]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,15 +13,15 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_d3a6v")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="TopBar" type="HBoxContainer" parent="." unique_id=268298886]
 layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 40.0
 
-[node name="Label" type="Label" parent="TopBar"]
+[node name="Label" type="Label" parent="TopBar" unique_id=871249928]
 layout_mode = 2
 
-[node name="Actions" type="VBoxContainer" parent="."]
+[node name="Actions" type="VBoxContainer" parent="." unique_id=1142435405]
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -31,31 +31,31 @@ offset_right = 50.0
 offset_bottom = 68.0
 grow_vertical = 2
 
-[node name="TrainButton" type="Button" parent="Actions"]
+[node name="TrainButton" type="Button" parent="Actions" unique_id=861111136]
 layout_mode = 2
 text = "Train"
 
-[node name="RestButton" type="Button" parent="Actions"]
+[node name="RestButton" type="Button" parent="Actions" unique_id=1213021598]
 layout_mode = 2
 text = "Rest"
 
-[node name="ShowButton" type="Button" parent="Actions"]
+[node name="ShowButton" type="Button" parent="Actions" unique_id=755532481]
 layout_mode = 2
 text = "Show"
 
-[node name="TourButton" type="Button" parent="Actions"]
+[node name="TourButton" type="Button" parent="Actions" unique_id=1767922956]
 layout_mode = 2
 text = "Tour"
 
-[node name="TrainingSystem" type="Node" parent="."]
+[node name="TrainingSystem" type="Node" parent="." unique_id=424057558]
 script = ExtResource("2_yogjq")
 metadata/_custom_type_script = "uid://bn6hp8voyikr8"
 
-[node name="CalendarSystem" type="Node" parent="."]
+[node name="CalendarSystem" type="Node" parent="." unique_id=2032247674]
 script = ExtResource("3_slykc")
 metadata/_custom_type_script = "uid://cdxybojcabrnp"
 
-[node name="ModalLayer" type="Control" parent="."]
+[node name="ModalLayer" type="Control" parent="." unique_id=1839470539]
 custom_minimum_size = Vector2(300, 200)
 layout_mode = 1
 anchors_preset = 6

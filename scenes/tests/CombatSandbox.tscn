@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://clq1v44ag5d4b"]
+
+[ext_resource type="Script" uid="uid://buvwekl6uq6o8" path="res://scripts/combat/Grid5x5.gd" id="1_70bs8"]
+[ext_resource type="Script" uid="uid://dakskgdessm8y" path="res://scripts/combat/Fighter.gd" id="2_2dre8"]
+[ext_resource type="Script" uid="uid://dlwnsa8a7cpij" path="res://scripts/combat/CombatManager.gd" id="3_2dre8"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ounsp"]
+size = Vector2(10, 10)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_70bs8"]
+size = Vector3(10, 1, 10)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_2dre8"]
+height = 1.83
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ounsp"]
+radius = 0.4
+
+[node name="CombatSandbox" type="Node3D" unique_id=2061597144]
+
+[node name="Grid5x5" type="Node" parent="." unique_id=1906682496]
+script = ExtResource("1_70bs8")
+metadata/_custom_type_script = "uid://buvwekl6uq6o8"
+
+[node name="Arena" type="Node3D" parent="." unique_id=1448747321]
+
+[node name="Floor" type="MeshInstance3D" parent="Arena" unique_id=2060659072]
+mesh = SubResource("PlaneMesh_ounsp")
+
+[node name="Collision" type="StaticBody3D" parent="Arena" unique_id=364734125]
+
+[node name="Shape" type="CollisionShape3D" parent="Arena/Collision" unique_id=756435271]
+shape = SubResource("BoxShape3D_70bs8")
+
+[node name="Fighter" type="CharacterBody3D" parent="." unique_id=1564264328]
+script = ExtResource("2_2dre8")
+metadata/_custom_type_script = "uid://dakskgdessm8y"
+
+[node name="Mesh" type="MeshInstance3D" parent="Fighter" unique_id=1423547900]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6423702, 1.3738604, -0.4218979)
+mesh = SubResource("CapsuleMesh_2dre8")
+
+[node name="Enemy" type="CharacterBody3D" parent="." unique_id=1257739880]
+script = ExtResource("2_2dre8")
+metadata/_custom_type_script = "uid://dakskgdessm8y"
+
+[node name="Mesh" type="MeshInstance3D" parent="Enemy" unique_id=15446813]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.493901, 1.1240671, -0.22863007)
+mesh = SubResource("CapsuleMesh_ounsp")
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=634930935]
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=765365461]
+transform = Transform3D(1, 0, 0, 0, 0.9049014, 0.4256214, 0, -0.4256214, 0.9049014, 0, 3.0907593, 7.2424316)
+
+[node name="CombatSandboxManager" type="Node" parent="." unique_id=1199320957]
+script = ExtResource("3_2dre8")
+grid_path = NodePath("../Grid5x5")
+player_path = NodePath("../Fighter")
+enemy_path = NodePath("../Enemy")
