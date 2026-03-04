@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://buvwekl6uq6o8" path="res://scripts/combat/Grid5x5.gd" id="1_70bs8"]
 [ext_resource type="Script" uid="uid://dakskgdessm8y" path="res://scripts/combat/Fighter.gd" id="2_2dre8"]
 [ext_resource type="Script" uid="uid://dlwnsa8a7cpij" path="res://scripts/combat/CombatManager.gd" id="3_2dre8"]
+[ext_resource type="Script" path="res://scripts/combat/GridDebug.gd" id="4_7q63f"]
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_ounsp"]
 size = Vector2(10, 10)
@@ -21,6 +22,9 @@ radius = 0.4
 [node name="Grid5x5" type="Node" parent="." unique_id=1906682496]
 script = ExtResource("1_70bs8")
 metadata/_custom_type_script = "uid://buvwekl6uq6o8"
+
+[node name="GridDebug" type="MeshInstance3D" parent="." unique_id=2107553739]
+script = ExtResource("4_7q63f")
 
 [node name="Arena" type="Node3D" parent="." unique_id=1448747321]
 
@@ -50,8 +54,12 @@ mesh = SubResource("CapsuleMesh_ounsp")
 
 [node name="CameraRig" type="Node3D" parent="." unique_id=634930935]
 
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="CameraRig" unique_id=1707644661]
+rotation_degrees = Vector3(-55, -30, 0)
+light_intensity_lux = 10000.0
+
 [node name="Camera3D" type="Camera3D" parent="CameraRig" unique_id=765365461]
-transform = Transform3D(1, 0, 0, 0, 0.9049014, 0.4256214, 0, -0.4256214, 0.9049014, 0, 3.0907593, 7.2424316)
+transform = Transform3D(1, 0, 0, 0, 0.819152, 0.573576, 0, -0.573576, 0.819152, 0, 6, 8)
 
 [node name="CombatSandboxManager" type="Node" parent="." unique_id=1199320957]
 script = ExtResource("3_2dre8")

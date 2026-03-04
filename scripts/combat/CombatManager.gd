@@ -19,7 +19,11 @@ func _ready() -> void:
 	grid.origin = Vector3(-grid.cell_size * (grid.width - 1) / 2.0, 0, -grid.cell_size * (grid.height - 1) / 2.0)
 
 	player.set_cell(Vector2i(1, 2), grid)
-	enemy.set_cell(Vector2i(1, 2), grid)
+	enemy.set_cell(Vector2i(3, 2), grid)
+
+	var grid_debug := get_node_or_null("../GridDebug")
+	if grid_debug and grid_debug.has_method("refresh"):
+		grid_debug.refresh(grid)
 
 func _process(delta: float) -> void:
 	player.tick_cd(delta)
