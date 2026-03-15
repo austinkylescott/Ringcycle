@@ -68,7 +68,7 @@ static func get_max(stat:String) -> float:
 			return 0.0
 
 		_:
-			return -INF
+			return INF
 
 static func clamp_value(stat:String, value:float) -> float:
 	var min_v := get_min(stat)

@@ -9,7 +9,7 @@ class_name StatEffect
 @export var instant_deltas: Dictionary = {}
 
 # Ongoing multipliers that affect training/stat gain. e.g. {"strength": 1.2} = +20% gains
-@export var growth_multiplier: Dictionary = {}
+@export var growth_multipliers: Dictionary = {}
 
 # 0 or <0 = permanent until explicitly removed.
 @export var duration_days: int = 0
