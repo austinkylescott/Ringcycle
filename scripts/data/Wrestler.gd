@@ -85,34 +85,32 @@ func get_growth_multiplier(stat: String) -> float:
 	if res == null:
 		return 1.0
 
-	var base := 1.0
+	var base: float = 1.0
 
 	# Species growth profile for this form
 	if res.species != null and res.species.growth_profile.has(stat):
-		base *= float(res.species.growth_profile[stat])
+		var profile_val: float = float(res.species.growth_profile[stat])
+		base *= profile_val
 
 	# Active effect multipliers
 	for effect in res.active_effects:
 		if effect.growth_multipliers.has(stat):
-			base *= float(effect.growth_multipliers[stat])
+			var effect_val: float = float(effect.growth_multipliers[stat])
+			base *= effect_val
 
-	# Personality modifier — converts -2..2 scale to a multiplier
-	# -2 = 0.6x, -1 = 0.8x, 0 = 1.0x, +1 = 1.2x, +2 = 1.4x
-	var personality_mod := PersonalityDefs.get_modifier(res.personality, stat)
+	# Personality modifier
+	var personality_mod: int = PersonalityDefs.get_modifier(res.personality, stat)
 	base *= (1.0 + personality_mod * 0.2)
 
 	# Soft cap taper
-	# Above the species soft cap threshold, gains taper toward zero.
-	# Global curve: linear taper from full gain at cap to 10% gain at 999.
 	if res.species != null and res.species.soft_caps.has(stat):
-		var cap := float(res.species.soft_caps[stat])
-		var current := get_stat(stat)
+		var cap: float = float(res.species.soft_caps[stat])
+		var current: float = get_stat(stat)
 		if current > cap:
-			var over := current - cap
-			var range := 999.0 - cap
-			if range > 0.0:
-				# taper_factor goes from 1.0 at cap to 0.1 at 999
-				var taper := 1.0 - (over / range) * 0.9
+			var over: float = current - cap
+			var taper_range: float = 999.0 - cap
+			if taper_range > 0.0:
+				var taper: float = 1.0 - (over / taper_range) * 0.9
 				base *= max(taper, 0.1)
 
 	return base
@@ -127,11 +125,11 @@ func get_growth_multiplier(stat: String) -> float:
 # ---------------------------------------------------------------------------
 
 func get_training_efficiency() -> float:
-	var fatigue := clamp(get_stat("fatigue"), 0.0, 100.0)
-	var morale  := clamp(get_stat("morale"),  0.0, 100.0)
+	var fatigue: float = clamp(get_stat("fatigue"), 0.0, 100.0)
+	var morale: float  = clamp(get_stat("morale"),  0.0, 100.0)
 
-	var fatigue_factor := lerp(1.0, 0.3, fatigue / 100.0)
-	var morale_factor  := lerp(0.8, 1.2, morale  / 100.0)
+	var fatigue_factor: float = lerp(1.0, 0.3, fatigue / 100.0)
+	var morale_factor: float  = lerp(0.8, 1.2, morale  / 100.0)
 
 	return fatigue_factor * morale_factor
 

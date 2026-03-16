@@ -1,84 +1,189 @@
-extends Resource
-# scripts/data/species/khet/khet_line.tres
-#
-# ---------------------------------------------------------------------------
-# Khet Evolution Line
-# Khet -> Sahu -> Nesut / Mesu-Bathu / Aten-Ka
-#
-# Legend A (Nesut/Pharaoh):
-#   Natural path. Balanced stats + Fame. Easy to discover.
-#   Hint: NPC comments on regal bearing when Charisma and Technique are high.
-#
-# Legend B (Mesu-Bathu/Revenant):
-#   Specialist path. Heavy Power drilling + Charisma neglect.
-#   Hint: NPC mentions the monster seems "angrier" after many Power sessions.
-#
-# Legend C (Aten-Ka/God-King):
-#   Against-grain path. All six stats above threshold simultaneously.
-#   Hardest to hit — natural drift toward specialization fights this.
-#   Hint: Extremely rare. Only a Legend or HoF coach reveals any conditions.
-# ---------------------------------------------------------------------------
+[gd_resource type="Resource" script_class="EvolutionLineResource" load_steps=18 format=3 uid="uid://khet_line"]
 
-class_name EvolutionLineResource
+[ext_resource type="Script" path="res://scripts/data/species/EvolutionLineResource.gd" id="1_elr"]
+[ext_resource type="Script" path="res://scripts/data/species/EvolutionCondition.gd" id="2_ec"]
 
-@export var line_id: String      = "khet"
-@export var display_name: String = "Khet"
+[ext_resource type="Resource" path="res://scripts/data/species/khet/khet_rookie.tres" id="3_rookie"]
+[ext_resource type="Resource" path="res://scripts/data/species/khet/khet_pro.tres" id="4_pro"]
+[ext_resource type="Resource" path="res://scripts/data/species/khet/khet_legend_a.tres" id="5_la"]
+[ext_resource type="Resource" path="res://scripts/data/species/khet/khet_legend_b.tres" id="6_lb"]
+[ext_resource type="Resource" path="res://scripts/data/species/khet/khet_legend_c.tres" id="7_lc"]
 
-# --- Forms ---
-@export var form_rookie:   WrestlerSpeciesResource  # khet_rookie.tres
-@export var form_pro:      WrestlerSpeciesResource  # khet_pro.tres
-@export var form_legend_a: WrestlerSpeciesResource  # khet_legend_a.tres
-@export var form_legend_b: WrestlerSpeciesResource  # khet_legend_b.tres
-@export var form_legend_c: WrestlerSpeciesResource  # khet_legend_c.tres
+; --- Rookie to Pro conditions ---
 
-# --- Rookie -> Pro ---
-# Simple age + stat floor. Should happen naturally mid-career.
-@export var conditions_rookie_to_pro: Array[EvolutionCondition] = [
-	# Must have lived at least 1 year
-	preload("res://scripts/data/species/khet/conditions/rtp_age.tres"),
-	# Must be in Rookie stage
-	preload("res://scripts/data/species/khet/conditions/rtp_stage.tres"),
-	# At least two core stats above 100
-	preload("res://scripts/data/species/khet/conditions/rtp_stat_floor.tres"),
-]
+[sub_resource type="Resource" id="rtp_1"]
+script = ExtResource("2_ec")
+type = 4
+days = 365
 
-# --- Pro -> Legend A (Nesut/Pharaoh) ---
-# Balanced growth rewarded. Charisma, Technique, and Fame thresholds.
-@export var conditions_legend_a: Array[EvolutionCondition] = [
-	preload("res://scripts/data/species/khet/conditions/la_stage.tres"),
-	preload("res://scripts/data/species/khet/conditions/la_power.tres"),
-	preload("res://scripts/data/species/khet/conditions/la_technique.tres"),
-	preload("res://scripts/data/species/khet/conditions/la_toughness.tres"),
-	preload("res://scripts/data/species/khet/conditions/la_stamina.tres"),
-	preload("res://scripts/data/species/khet/conditions/la_charisma.tres"),
-	preload("res://scripts/data/species/khet/conditions/la_fame.tres"),
-]
+[sub_resource type="Resource" id="rtp_2"]
+script = ExtResource("2_ec")
+type = 8
+stage = "Rookie"
 
-# --- Pro -> Legend B (Mesu-Bathu/Revenant) ---
-# Heavy Power session count + Charisma neglect.
-@export var conditions_legend_b: Array[EvolutionCondition] = [
-	preload("res://scripts/data/species/khet/conditions/lb_stage.tres"),
-	preload("res://scripts/data/species/khet/conditions/lb_power_sessions.tres"),
-	preload("res://scripts/data/species/khet/conditions/lb_power_stat.tres"),
-	preload("res://scripts/data/species/khet/conditions/lb_charisma_low.tres"),
-]
+[sub_resource type="Resource" id="rtp_3"]
+script = ExtResource("2_ec")
+type = 0
+stat = "toughness"
+value = 100.0
 
-# --- Pro -> Legend C (Aten-Ka/God-King) ---
-# All six stats above threshold simultaneously. Hardest condition set.
-@export var conditions_legend_c: Array[EvolutionCondition] = [
-	preload("res://scripts/data/species/khet/conditions/lc_stage.tres"),
-	preload("res://scripts/data/species/khet/conditions/lc_power.tres"),
-	preload("res://scripts/data/species/khet/conditions/lc_technique.tres"),
-	preload("res://scripts/data/species/khet/conditions/lc_agility.tres"),
-	preload("res://scripts/data/species/khet/conditions/lc_toughness.tres"),
-	preload("res://scripts/data/species/khet/conditions/lc_stamina.tres"),
-	preload("res://scripts/data/species/khet/conditions/lc_charisma.tres"),
-]
+; --- Legend A (Nesut / Pharaoh) conditions ---
 
-# Legend C wins on simultaneous qualification (rarest wins)
-@export var legend_priority: Array[String] = ["legend_c", "legend_b", "legend_a"]
+[sub_resource type="Resource" id="la_1"]
+script = ExtResource("2_ec")
+type = 8
+stage = "Pro"
 
-# Hint reveal levels — what coaches of this line can show
-@export var legend_a_hint_level: String = "vague"   # easy to discover
-@export var legend_b_hint_level: String = "vague"   # NPC hints available
-@export var legend_c_hint_level: String = "none"    # hidden until Legend/HoF coach
+[sub_resource type="Resource" id="la_2"]
+script = ExtResource("2_ec")
+type = 0
+stat = "power"
+value = 300.0
+hint_vague = "Needs strong Power..."
+hint_full = "Needs 300 Power"
+
+[sub_resource type="Resource" id="la_3"]
+script = ExtResource("2_ec")
+type = 0
+stat = "technique"
+value = 300.0
+hint_vague = "Needs refined Technique..."
+hint_full = "Needs 300 Technique"
+
+[sub_resource type="Resource" id="la_4"]
+script = ExtResource("2_ec")
+type = 0
+stat = "toughness"
+value = 320.0
+hint_vague = "Needs solid Toughness..."
+hint_full = "Needs 320 Toughness"
+
+[sub_resource type="Resource" id="la_5"]
+script = ExtResource("2_ec")
+type = 0
+stat = "stamina"
+value = 320.0
+hint_vague = "Needs enduring Stamina..."
+hint_full = "Needs 320 Stamina"
+
+[sub_resource type="Resource" id="la_6"]
+script = ExtResource("2_ec")
+type = 0
+stat = "charisma"
+value = 280.0
+hint_vague = "Needs commanding Charisma..."
+hint_full = "Needs 280 Charisma"
+
+[sub_resource type="Resource" id="la_7"]
+script = ExtResource("2_ec")
+type = 7
+stat = "fame"
+value = 50.0
+hint_vague = "Needs a certain fame..."
+hint_full = "Needs 50 Fame"
+
+; --- Legend B (Mesu-Bathu / Revenant) conditions ---
+
+[sub_resource type="Resource" id="lb_1"]
+script = ExtResource("2_ec")
+type = 8
+stage = "Pro"
+
+[sub_resource type="Resource" id="lb_2"]
+script = ExtResource("2_ec")
+type = 3
+stat = "power"
+sessions = 40
+hint_vague = "Seems to respond to repeated Power training..."
+hint_full = "Needs 40 Power training sessions"
+
+[sub_resource type="Resource" id="lb_3"]
+script = ExtResource("2_ec")
+type = 0
+stat = "power"
+value = 400.0
+hint_vague = "Needs very high Power..."
+hint_full = "Needs 400 Power"
+
+[sub_resource type="Resource" id="lb_4"]
+script = ExtResource("2_ec")
+type = 1
+stat = "charisma"
+value = 200.0
+hint_vague = "Something happens when the crowd doesn't warm to them..."
+hint_full = "Needs Charisma below 200"
+
+; --- Legend C (Aten-Ka / God-King) conditions ---
+
+[sub_resource type="Resource" id="lc_1"]
+script = ExtResource("2_ec")
+type = 8
+stage = "Pro"
+
+[sub_resource type="Resource" id="lc_2"]
+script = ExtResource("2_ec")
+type = 0
+stat = "power"
+value = 350.0
+hint_vague = "???"
+hint_full = "Needs 350 Power"
+
+[sub_resource type="Resource" id="lc_3"]
+script = ExtResource("2_ec")
+type = 0
+stat = "technique"
+value = 350.0
+hint_vague = "???"
+hint_full = "Needs 350 Technique"
+
+[sub_resource type="Resource" id="lc_4"]
+script = ExtResource("2_ec")
+type = 0
+stat = "agility"
+value = 320.0
+hint_vague = "???"
+hint_full = "Needs 320 Agility"
+
+[sub_resource type="Resource" id="lc_5"]
+script = ExtResource("2_ec")
+type = 0
+stat = "toughness"
+value = 350.0
+hint_vague = "???"
+hint_full = "Needs 350 Toughness"
+
+[sub_resource type="Resource" id="lc_6"]
+script = ExtResource("2_ec")
+type = 0
+stat = "stamina"
+value = 350.0
+hint_vague = "???"
+hint_full = "Needs 350 Stamina"
+
+[sub_resource type="Resource" id="lc_7"]
+script = ExtResource("2_ec")
+type = 0
+stat = "charisma"
+value = 320.0
+hint_vague = "???"
+hint_full = "Needs 320 Charisma"
+
+; --- Line root ---
+
+[resource]
+script = ExtResource("1_elr")
+line_id = "khet"
+display_name = "Khet"
+form_rookie = ExtResource("3_rookie")
+form_pro = ExtResource("4_pro")
+form_legend_a = ExtResource("5_la")
+form_legend_b = ExtResource("6_lb")
+form_legend_c = ExtResource("7_lc")
+conditions_rookie_to_pro = [SubResource("rtp_1"), SubResource("rtp_2"), SubResource("rtp_3")]
+conditions_legend_a = [SubResource("la_1"), SubResource("la_2"), SubResource("la_3"), SubResource("la_4"), SubResource("la_5"), SubResource("la_6"), SubResource("la_7")]
+conditions_legend_b = [SubResource("lb_1"), SubResource("lb_2"), SubResource("lb_3"), SubResource("lb_4")]
+conditions_legend_c = [SubResource("lc_1"), SubResource("lc_2"), SubResource("lc_3"), SubResource("lc_4"), SubResource("lc_5"), SubResource("lc_6"), SubResource("lc_7")]
+legend_priority = ["legend_c", "legend_b", "legend_a"]
+legend_a_hint_level = "vague"
+legend_b_hint_level = "vague"
+legend_c_hint_level = "none"

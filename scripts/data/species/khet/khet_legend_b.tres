@@ -1,67 +1,37 @@
-extends Resource
-# scripts/data/species/mummy/mesu_bathu_legend_b.tres
+[gd_resource type="Resource" script_class="WrestlerSpeciesResource" load_steps=2 format=3 uid="uid://khet_legend_b"]
 
-# ---------------------------------------------------------------------------
-# Mesu-Bathu — Mummy line Legend B (Revenant)
-# The specialist path. Cursed, aggressive, wrappings torn and wild.
-# Power dominates. Charisma suffers — this form doesn't perform, it destroys.
-# Rewards players who drilled Power heavily and let Charisma atrophy.
-# ---------------------------------------------------------------------------
+[ext_resource type="Script" path="res://scripts/data/species/WrestlerSpeciesResource.gd" id="1_wsr"]
 
-class_name WrestlerSpeciesResource
-
-@export var id: String = "khet_legend_b"
-@export var display_name: String = "Mesu-Bathu"
-@export var stage: String = "Legend_B"
-
-@export var base_stats := {
-	"power":     45,
-	"technique": 42,
-	"agility":   38,
-	"toughness": 48,
-	"stamina":   50,
-	"charisma":  42,
+[resource]
+script = ExtResource("1_wsr")
+id = "khet_legend_b"
+display_name = "Mesu-Bathu"
+stage = "Legend_B"
+base_stats = {
+"power": 45,
+"technique": 42,
+"agility": 38,
+"toughness": 48,
+"stamina": 50,
+"charisma": 42
 }
-
-# Revenant form: power and toughness surge, charisma collapses
-# The curse makes it terrifying but unlovable
-@export var growth_profile := {
-	"power":     1.5,
-	"technique": 1.0,
-	"agility":   1.1,
-	"toughness": 1.35,
-	"stamina":   1.2,
-	"charisma":  0.6,
+growth_profile = {
+"power": 1.5,
+"technique": 1.0,
+"agility": 1.1,
+"toughness": 1.35,
+"stamina": 1.2,
+"charisma": 0.6
 }
-
-# Hard power/toughness caps pushed very high — agility and charisma capped low
-@export var soft_caps := {
-	"power":     900,
-	"technique": 600,
-	"agility":   600,
-	"toughness": 850,
-	"stamina":   700,
-	"charisma":  350,
+soft_caps = {
+"power": 900,
+"technique": 600,
+"agility": 600,
+"toughness": 850,
+"stamina": 700,
+"charisma": 350
 }
-
-@export var lifespan_base: int     = 2190
-@export var lifespan_variance: int = 365
-@export var lifespan_min: int      = 730
-
-@export var move_pool: Array[String] = [
-	"bandage_bind",
-	"dust_slam",
-	"ancient_guard",
-	"cursed_stare",
-	"sarcophagus_drop",
-	"scarab_swarm",
-	"ankh_strike",
-	"desert_wind",
-	"death_grip",
-	"cursed_slam",
-	"undying_rage",
-	"tomb_crusher",
-]
-
-@export var portrait: Texture2D
-@export var body_sprite: Texture2D
+lifespan_base = 2190
+lifespan_variance = 365
+lifespan_min = 730
+move_pool = ["bandage_bind", "dust_slam", "ancient_guard", "cursed_stare", "sarcophagus_drop", "scarab_swarm", "ankh_strike", "desert_wind", "death_grip", "cursed_slam", "undying_rage", "tomb_crusher"]

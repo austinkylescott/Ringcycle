@@ -1,65 +1,37 @@
-extends Resource
-# scripts/data/species/mummy/sahu_pro.tres
+[gd_resource type="Resource" script_class="WrestlerSpeciesResource" load_steps=2 format=3 uid="uid://khet_pro"]
 
-# ---------------------------------------------------------------------------
-# Sahu — Mummy line Pro form
-# The spiritual body awakens. Wrappings loosen, eyes glow with ancient light.
-# Balanced stats grow stronger — the monster starts finding its identity.
-# Growth profile opens up slightly across all stats.
-# ---------------------------------------------------------------------------
+[ext_resource type="Script" path="res://scripts/data/species/WrestlerSpeciesResource.gd" id="1_wsr"]
 
-class_name WrestlerSpeciesResource
-
-@export var id: String = "khet_pro"
-@export var display_name: String = "Sahu"
-@export var stage: String = "Pro"
-
-@export var base_stats := {
-	"power":     45,
-	"technique": 42,
-	"agility":   38,
-	"toughness": 48,
-	"stamina":   50,
-	"charisma":  42,
+[resource]
+script = ExtResource("1_wsr")
+id = "khet_pro"
+display_name = "Sahu"
+stage = "Pro"
+base_stats = {
+"power": 45,
+"technique": 42,
+"agility": 38,
+"toughness": 48,
+"stamina": 50,
+"charisma": 42
 }
-
-# Pro form growth opens up slightly — all stats improve a little
-# Agility still slightly behind, toughness/stamina still the natural peaks
-@export var growth_profile := {
-	"power":     1.1,
-	"technique": 1.1,
-	"agility":   1.0,
-	"toughness": 1.2,
-	"stamina":   1.2,
-	"charisma":  1.1,
+growth_profile = {
+"power": 1.1,
+"technique": 1.1,
+"agility": 1.0,
+"toughness": 1.2,
+"stamina": 1.2,
+"charisma": 1.1
 }
-
-# Slightly higher soft caps than Rookie — Pro form has more ceiling
-@export var soft_caps := {
-	"power":     650,
-	"technique": 650,
-	"agility":   580,
-	"toughness": 700,
-	"stamina":   700,
-	"charisma":  650,
+soft_caps = {
+"power": 650,
+"technique": 650,
+"agility": 580,
+"toughness": 700,
+"stamina": 700,
+"charisma": 650
 }
-
-# Lifespan not used on Pro form — inherited from birth roll
-@export var lifespan_base: int     = 2190
-@export var lifespan_variance: int = 365
-@export var lifespan_min: int      = 730
-
-# Pro move pool is a superset of Rookie — all Rookie moves remain learnable
-@export var move_pool: Array[String] = [
-	"bandage_bind",
-	"dust_slam",
-	"ancient_guard",
-	"cursed_stare",
-	"sarcophagus_drop",
-	"scarab_swarm",
-	"ankh_strike",
-	"desert_wind",
-]
-
-@export var portrait: Texture2D
-@export var body_sprite: Texture2D
+lifespan_base = 2190
+lifespan_variance = 365
+lifespan_min = 730
+move_pool = ["bandage_bind", "dust_slam", "ancient_guard", "cursed_stare", "sarcophagus_drop", "scarab_swarm", "ankh_strike", "desert_wind"]

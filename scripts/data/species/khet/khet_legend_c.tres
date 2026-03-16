@@ -1,74 +1,37 @@
-extends Resource
-# scripts/data/species/mummy/aten_ka_legend_c.tres
+[gd_resource type="Resource" script_class="WrestlerSpeciesResource" load_steps=2 format=3 uid="uid://khet_legend_c"]
 
-# ---------------------------------------------------------------------------
-# Aten-Ka — Mummy line Legend C (God-King)
-# The against-grain path. Transcendence through total balance.
-# All wrappings shed. Radiates golden light. No longer a mummy — a deity.
-# Requires ALL six stats above a moderate threshold simultaneously.
-# Hardest to achieve because it fights the natural drift toward specialization.
-# ---------------------------------------------------------------------------
+[ext_resource type="Script" path="res://scripts/data/species/WrestlerSpeciesResource.gd" id="1_wsr"]
 
-class_name WrestlerSpeciesResource
-
-@export var id: String = "khet_legend_c"
-@export var display_name: String = "Aten-Ka"
-@export var stage: String = "Legend_C"
-
-@export var base_stats := {
-	"power":     45,
-	"technique": 42,
-	"agility":   38,
-	"toughness": 48,
-	"stamina":   50,
-	"charisma":  42,
+[resource]
+script = ExtResource("1_wsr")
+id = "khet_legend_c"
+display_name = "Aten-Ka"
+stage = "Legend_C"
+base_stats = {
+"power": 45,
+"technique": 42,
+"agility": 38,
+"toughness": 48,
+"stamina": 50,
+"charisma": 42
 }
-
-# God-King form: all stats grow equally and exceptionally
-# The divine form has no weaknesses — everything ascends together
-@export var growth_profile := {
-	"power":     1.3,
-	"technique": 1.3,
-	"agility":   1.3,
-	"toughness": 1.3,
-	"stamina":   1.3,
-	"charisma":  1.3,
+growth_profile = {
+"power": 1.3,
+"technique": 1.3,
+"agility": 1.3,
+"toughness": 1.3,
+"stamina": 1.3,
+"charisma": 1.3
 }
-
-# High uniform soft caps — the God-King can push everything to near-max
-@export var soft_caps := {
-	"power":     850,
-	"technique": 850,
-	"agility":   850,
-	"toughness": 850,
-	"stamina":   850,
-	"charisma":  850,
+soft_caps = {
+"power": 850,
+"technique": 850,
+"agility": 850,
+"toughness": 850,
+"stamina": 850,
+"charisma": 850
 }
-
-@export var lifespan_base: int     = 2190
-@export var lifespan_variance: int = 365
-@export var lifespan_min: int      = 730
-
-# Largest move pool — a god knows all things
-@export var move_pool: Array[String] = [
-	"bandage_bind",
-	"dust_slam",
-	"ancient_guard",
-	"cursed_stare",
-	"sarcophagus_drop",
-	"scarab_swarm",
-	"ankh_strike",
-	"desert_wind",
-	"royal_decree",
-	"golden_crook",
-	"pharaohs_wrath",
-	"eye_of_horus",
-	"death_grip",
-	"cursed_slam",
-	"solar_barque",
-	"divine_judgment",
-	"aten_radiance",
-]
-
-@export var portrait: Texture2D
-@export var body_sprite: Texture2D
+lifespan_base = 2190
+lifespan_variance = 365
+lifespan_min = 730
+move_pool = ["bandage_bind", "dust_slam", "ancient_guard", "cursed_stare", "sarcophagus_drop", "scarab_swarm", "ankh_strike", "desert_wind", "royal_decree", "golden_crook", "pharaohs_wrath", "eye_of_horus", "death_grip", "cursed_slam", "solar_barque", "divine_judgment", "aten_radiance"]

@@ -194,7 +194,7 @@ static func _build_hints(w: Wrestler) -> Dictionary:
 	if path == "":
 		return hints
 
-	var path_hints := es.get_legend_hints(line.line_id, path, reveal_level)
+	var path_hints: Array[String] = es.get_legend_hints(line.line_id, path, reveal_level)
 	if not path_hints.is_empty():
 		hints[path] = path_hints
 
