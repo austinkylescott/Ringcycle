@@ -18,6 +18,15 @@ class_name TrainingSystem
 #   4. apply_training() writes delta, records session, fires personality pressure
 #
 # CalendarSystem calls on_week_start(wrestler) every Monday.
+#
+# TUNING NOTE (2026-03-16):
+#   Base deltas reduced ~50% from original values. Training alone should not
+#   be able to push a stat to 800+. That ceiling requires shows, tours, and
+#   items on top of a training foundation. Target stat ranges at key milestones
+#   (balanced play, no items/tours):
+#     Rookie → Pro  (~500 days):   40–80 per stat
+#     Pro → Legend  (~1172 days):  100–180 per stat (specialist ~250 in focus stat)
+#     End of Legend career:        250–400 range; 800+ requires show/tour bonuses
 # ---------------------------------------------------------------------------
 
 # Tracks which stats were trained this in-game week for varied detection.
@@ -34,17 +43,17 @@ func get_base_delta(action_name: String) -> Dictionary:
 
 		# --- Standard: 1 core stat only ---
 		"Power Drill":
-			return {"power": 5, "fatigue": 10, "morale": -5}
+			return {"power": 2, "fatigue": 10, "morale": -5}
 		"Technique Practice":
-			return {"technique": 5, "fatigue": 10, "morale": -5}
+			return {"technique": 2, "fatigue": 10, "morale": -5}
 		"Conditioning":
-			return {"stamina": 6, "fatigue": 10, "morale": -5}
+			return {"stamina": 3, "fatigue": 10, "morale": -5}
 		"Agility Drills":
-			return {"agility": 5, "fatigue": 10, "morale": -5}
+			return {"agility": 2, "fatigue": 10, "morale": -5}
 		"Toughness Training":
-			return {"toughness": 5, "fatigue": 10, "morale": -5}
+			return {"toughness": 2, "fatigue": 10, "morale": -5}
 		"Showmanship":
-			return {"charisma": 6, "fatigue": 10, "morale": -5}
+			return {"charisma": 3, "fatigue": 10, "morale": -5}
 
 		# --- Rest ---
 		"Rest":
@@ -54,17 +63,17 @@ func get_base_delta(action_name: String) -> Dictionary:
 		# Primary stat gains significantly, secondary gains moderately.
 		# High fatigue cost, moderate morale hit, extra stress.
 		"Heavy Lifting":
-			return {"power": 10, "toughness": 4, "fatigue": 20, "morale": -10}
+			return {"power": 5, "toughness": 2, "fatigue": 20, "morale": -10}
 		"Sparring":
-			return {"technique": 10, "charisma": 4, "fatigue": 20, "morale": -10}
+			return {"technique": 5, "charisma": 2, "fatigue": 20, "morale": -10}
 		"Endurance Run":
-			return {"stamina": 12, "agility": 4, "fatigue": 20, "morale": -10}
+			return {"stamina": 6, "agility": 2, "fatigue": 20, "morale": -10}
 		"Speed Work":
-			return {"agility": 10, "stamina": 4, "fatigue": 20, "morale": -10}
+			return {"agility": 5, "stamina": 2, "fatigue": 20, "morale": -10}
 		"Iron Circuit":
-			return {"toughness": 10, "power": 4, "fatigue": 20, "morale": -10}
+			return {"toughness": 5, "power": 2, "fatigue": 20, "morale": -10}
 		"Crowd Work":
-			return {"charisma": 12, "technique": 4, "fatigue": 20, "morale": -10}
+			return {"charisma": 6, "technique": 2, "fatigue": 20, "morale": -10}
 
 		_:
 			push_warning("TrainingSystem.get_base_delta: unknown action '%s'" % action_name)

@@ -9,13 +9,42 @@
 [ext_resource type="Resource" path="res://scripts/data/species/khet/khet_legend_b.tres" id="6_lb"]
 [ext_resource type="Resource" path="res://scripts/data/species/khet/khet_legend_c.tres" id="7_lc"]
 
-; --- Rookie to Pro conditions ---
-; Simple age + toughness floor. Should happen naturally in first year.
+; ---------------------------------------------------------------------------
+; TUNING NOTE (2026-03-16 v7) — Identity-driven stat floors
+;
+; Each gate checks only 2-3 stats that reflect the identity of that form.
+; Floors calibrated against observed sim data (~65-70% of observed minimums).
+;
+; Khet average lifespan: 2190 days
+; Stage split: 40% Rookie (876d) / 30% Pro (657d) / 30% Legend (657d)
+;   Rookie->Pro gate opens:  876 days
+;   Pro->Legend gate opens: 1533 days
+;
+; Gate identities:
+;   Rookie->Pro  : Stamina + Technique  (the endurance specialist)
+;   Legend A     : Technique + Charisma + Fame  (refined, commanding, known)
+;   Legend B     : Power high + Charisma low  (the brute, crowd-indifferent)
+;   Legend C     : Power + Technique + Charisma + Championship  (force, skill, presence)
+;
+; Observed stat ranges at gates (latest sim log):
+;   At ~876 days:   STA min ~220  TEC min ~165
+;   At ~1533 days:  POW min ~312  TEC min ~305  CHA min ~294
+;
+; Lifespan reference (336 days = 1 year):
+;   4yr = 1344d (sabotage)    7yr = 2352d (good)
+;   5yr = 1680d (unskilled)   8yr = 2688d (pushing it)
+;   6yr = 2016d (average)     9yr = 3024d (concerted effort)
+; ---------------------------------------------------------------------------
+
+; --- Rookie to Pro ---
+; Identity: the endurance specialist. Checks Stamina + Technique only.
+; Floors at ~80% of observed minimums — clears immediately for any
+; active trainer, but confirms the Khet identity is developing.
 
 [sub_resource type="Resource" id="rtp_1"]
 script = ExtResource("2_ec")
 type = 4
-days = 365
+days = 876
 
 [sub_resource type="Resource" id="rtp_2"]
 script = ExtResource("2_ec")
@@ -25,13 +54,21 @@ stage = "Rookie"
 [sub_resource type="Resource" id="rtp_3"]
 script = ExtResource("2_ec")
 type = 0
-stat = "toughness"
-value = 100.0
+stat = "stamina"
+value = 180.0
 
-; --- Legend A (Nesut / Pharaoh) conditions ---
-; Natural path. Balanced stats + Fame. A casual player who does shows
-; and trains reasonably will hit this. Thresholds set so that a player
-; who trains varied and attends shows naturally qualifies mid-career.
+[sub_resource type="Resource" id="rtp_4"]
+script = ExtResource("2_ec")
+type = 0
+stat = "technique"
+value = 130.0
+
+; --- Legend A (Nesut / Pharaoh) ---
+; Identity: refined, commanding, known.
+; Checks Technique + Charisma + Fame only.
+; Floors at ~70% of observed minimums. Well-played clears immediately.
+; A monster who neglected Technique or Charisma for a specialist build
+; may need a few weeks after the window opens.
 
 [sub_resource type="Resource" id="la_1"]
 script = ExtResource("2_ec")
@@ -40,45 +77,26 @@ stage = "Pro"
 
 [sub_resource type="Resource" id="la_2"]
 script = ExtResource("2_ec")
-type = 0
-stat = "power"
-value = 250.0
-hint_vague = "Needs solid Power..."
-hint_full = "Needs 250 Power"
+type = 4
+days = 1533
 
 [sub_resource type="Resource" id="la_3"]
 script = ExtResource("2_ec")
 type = 0
 stat = "technique"
-value = 250.0
+value = 210.0
 hint_vague = "Needs refined Technique..."
-hint_full = "Needs 250 Technique"
+hint_full = "Needs 210 Technique"
 
 [sub_resource type="Resource" id="la_4"]
 script = ExtResource("2_ec")
 type = 0
-stat = "toughness"
-value = 260.0
-hint_vague = "Needs solid Toughness..."
-hint_full = "Needs 260 Toughness"
+stat = "charisma"
+value = 200.0
+hint_vague = "Needs commanding Charisma..."
+hint_full = "Needs 200 Charisma"
 
 [sub_resource type="Resource" id="la_5"]
-script = ExtResource("2_ec")
-type = 0
-stat = "stamina"
-value = 260.0
-hint_vague = "Needs enduring Stamina..."
-hint_full = "Needs 260 Stamina"
-
-[sub_resource type="Resource" id="la_6"]
-script = ExtResource("2_ec")
-type = 0
-stat = "charisma"
-value = 230.0
-hint_vague = "Needs commanding Charisma..."
-hint_full = "Needs 230 Charisma"
-
-[sub_resource type="Resource" id="la_7"]
 script = ExtResource("2_ec")
 type = 7
 stat = "fame"
@@ -86,10 +104,14 @@ value = 40.0
 hint_vague = "Needs to be known..."
 hint_full = "Needs 40 Fame"
 
-; --- Legend B (Mesu-Bathu / Revenant) conditions ---
-; Specialist path. Heavy Power drilling + Charisma neglect.
-; A player who intentionally focuses on Power and ignores Charisma hits this.
-; Thresholds kept high enough to require genuine specialisation.
+; --- Legend B (Mesu-Bathu / Revenant) ---
+; Identity: the brute, crowd-indifferent.
+; Checks Power high + Charisma low. Two stats, opposite directions.
+; Observed power specialist at 1533 days: POW ~430-470, floor at 260
+; is comfortably reachable with committed specialisation.
+; Charisma cap 120: balanced monster has ~290-350 CHA at this point,
+; so must actively neglect it throughout Pro stage.
+; Sessions check (25) confirms the specialisation was intentional.
 
 [sub_resource type="Resource" id="lb_1"]
 script = ExtResource("2_ec")
@@ -98,34 +120,40 @@ stage = "Pro"
 
 [sub_resource type="Resource" id="lb_2"]
 script = ExtResource("2_ec")
-type = 3
-stat = "power"
-sessions = 35
-hint_vague = "Seems to respond to repeated Power training..."
-hint_full = "Needs 35 Power training sessions"
+type = 4
+days = 1533
 
 [sub_resource type="Resource" id="lb_3"]
 script = ExtResource("2_ec")
-type = 0
+type = 3
 stat = "power"
-value = 380.0
-hint_vague = "Needs very high Power..."
-hint_full = "Needs 380 Power"
+sessions = 25
+hint_vague = "Seems to respond to repeated Power training..."
+hint_full = "Needs 25 Power training sessions"
 
 [sub_resource type="Resource" id="lb_4"]
 script = ExtResource("2_ec")
+type = 0
+stat = "power"
+value = 260.0
+hint_vague = "Needs very high Power..."
+hint_full = "Needs 260 Power"
+
+[sub_resource type="Resource" id="lb_5"]
+script = ExtResource("2_ec")
 type = 1
 stat = "charisma"
-value = 180.0
+value = 120.0
 hint_vague = "Something happens when the crowd doesn't warm to them..."
-hint_full = "Needs Charisma below 180"
+hint_full = "Needs Charisma below 120"
 
-; --- Legend C (Aten-Ka / God-King) conditions ---
-; Against-grain path. All six stats above threshold AND a championship win.
-; The championship requirement means you can't just train in a gym — you must
-; compete. A player who stumbles into balanced stats but never wins a title
-; will NOT hit this path. Requires intentional engagement with the show system.
-; hint_vague is "???" — this path is deliberately obscure.
+; --- Legend C (Aten-Ka / God-King) ---
+; Identity: force, skill, presence. The complete package.
+; Checks Power + Technique + Charisma + Championship.
+; Floors at ~70% of observed minimums — requires genuine breadth,
+; a heavy specialist will likely fail at least one of these three.
+; Championship is the true differentiator: cannot be earned from
+; the gym alone. hint_vague "???" — obscure by design.
 
 [sub_resource type="Resource" id="lc_1"]
 script = ExtResource("2_ec")
@@ -134,53 +162,34 @@ stage = "Pro"
 
 [sub_resource type="Resource" id="lc_2"]
 script = ExtResource("2_ec")
-type = 0
-stat = "power"
-value = 350.0
-hint_vague = "???"
-hint_full = "Needs 350 Power"
+type = 4
+days = 1533
 
 [sub_resource type="Resource" id="lc_3"]
 script = ExtResource("2_ec")
 type = 0
-stat = "technique"
-value = 350.0
+stat = "power"
+value = 220.0
 hint_vague = "???"
-hint_full = "Needs 350 Technique"
+hint_full = "Needs 220 Power"
 
 [sub_resource type="Resource" id="lc_4"]
 script = ExtResource("2_ec")
 type = 0
-stat = "agility"
-value = 320.0
+stat = "technique"
+value = 210.0
 hint_vague = "???"
-hint_full = "Needs 320 Agility"
+hint_full = "Needs 210 Technique"
 
 [sub_resource type="Resource" id="lc_5"]
 script = ExtResource("2_ec")
 type = 0
-stat = "toughness"
-value = 350.0
+stat = "charisma"
+value = 200.0
 hint_vague = "???"
-hint_full = "Needs 350 Toughness"
+hint_full = "Needs 200 Charisma"
 
 [sub_resource type="Resource" id="lc_6"]
-script = ExtResource("2_ec")
-type = 0
-stat = "stamina"
-value = 350.0
-hint_vague = "???"
-hint_full = "Needs 350 Stamina"
-
-[sub_resource type="Resource" id="lc_7"]
-script = ExtResource("2_ec")
-type = 0
-stat = "charisma"
-value = 320.0
-hint_vague = "???"
-hint_full = "Needs 320 Charisma"
-
-[sub_resource type="Resource" id="lc_8"]
 script = ExtResource("2_ec")
 type = 6
 event_id = "championship_won"
@@ -198,10 +207,10 @@ form_pro = ExtResource("4_pro")
 form_legend_a = ExtResource("5_la")
 form_legend_b = ExtResource("6_lb")
 form_legend_c = ExtResource("7_lc")
-conditions_rookie_to_pro = [SubResource("rtp_1"), SubResource("rtp_2"), SubResource("rtp_3")]
-conditions_legend_a = [SubResource("la_1"), SubResource("la_2"), SubResource("la_3"), SubResource("la_4"), SubResource("la_5"), SubResource("la_6"), SubResource("la_7")]
-conditions_legend_b = [SubResource("lb_1"), SubResource("lb_2"), SubResource("lb_3"), SubResource("lb_4")]
-conditions_legend_c = [SubResource("lc_1"), SubResource("lc_2"), SubResource("lc_3"), SubResource("lc_4"), SubResource("lc_5"), SubResource("lc_6"), SubResource("lc_7"), SubResource("lc_8")]
+conditions_rookie_to_pro = [SubResource("rtp_1"), SubResource("rtp_2"), SubResource("rtp_3"), SubResource("rtp_4")]
+conditions_legend_a = [SubResource("la_1"), SubResource("la_2"), SubResource("la_3"), SubResource("la_4"), SubResource("la_5")]
+conditions_legend_b = [SubResource("lb_1"), SubResource("lb_2"), SubResource("lb_3"), SubResource("lb_4"), SubResource("lb_5")]
+conditions_legend_c = [SubResource("lc_1"), SubResource("lc_2"), SubResource("lc_3"), SubResource("lc_4"), SubResource("lc_5"), SubResource("lc_6")]
 legend_priority = ["legend_c", "legend_b", "legend_a"]
 legend_a_hint_level = "vague"
 legend_b_hint_level = "vague"

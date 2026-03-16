@@ -24,12 +24,12 @@ growth_profile = {
 "charisma": 1.0
 }
 soft_caps = {
-"power": 550,
-"technique": 550,
-"agility": 500,
-"toughness": 600,
-"stamina": 600,
-"charisma": 550
+"power": 220,
+"technique": 220,
+"agility": 200,
+"toughness": 240,
+"stamina": 240,
+"charisma": 220
 }
 lifespan_base = 2190
 lifespan_variance = 365
