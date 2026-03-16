@@ -1,0 +1,60 @@
+extends Resource
+# scripts/data/species/mummy/khet_rookie.tres
+
+# ---------------------------------------------------------------------------
+# Khet — Mummy line Rookie form
+# The wrapped vessel. Ancient, dormant, just beginning to stir.
+# Easy difficulty — long life, forgiving growth, balanced stats.
+# Great starter monster for new players.
+# ---------------------------------------------------------------------------
+
+class_name WrestlerSpeciesResource
+
+@export var id: String = "khet_rookie"
+@export var display_name: String = "Khet"
+@export var stage: String = "Rookie"
+
+@export var base_stats := {
+	"power":     45,
+	"technique": 42,
+	"agility":   38,
+	"toughness": 48,
+	"stamina":   50,
+	"charisma":  42,
+}
+
+# Forgiving growth — slight lean toward toughness and stamina (ancient endurance)
+# Everything else grows at normal rate. No punishing weaknesses.
+@export var growth_profile := {
+	"power":     1.0,
+	"technique": 1.0,
+	"agility":   0.95,
+	"toughness": 1.1,
+	"stamina":   1.1,
+	"charisma":  1.0,
+}
+
+# Generous soft caps — easy to keep growing all stats into mid-career
+@export var soft_caps := {
+	"power":     550,
+	"technique": 550,
+	"agility":   500,
+	"toughness": 600,
+	"stamina":   600,
+	"charisma":  550,
+}
+
+# Long life — easy difficulty means plenty of time to learn the game
+@export var lifespan_base: int     = 2190   # 6 years
+@export var lifespan_variance: int = 365    # +/- 1 year
+@export var lifespan_min: int      = 730    # at least 2 years
+
+@export var move_pool: Array[String] = [
+	"bandage_bind",
+	"dust_slam",
+	"ancient_guard",
+	"cursed_stare",
+]
+
+@export var portrait: Texture2D
+@export var body_sprite: Texture2D

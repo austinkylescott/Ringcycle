@@ -23,3 +23,4 @@ config/icon="res://icon.svg"
 
 GM="*res://scripts/core/GameManager.gd"
 SR="*res://scripts/core/SpeciesRegistry.gd"
+ES="*res://scripts/core/EvolutionSystem.gd"

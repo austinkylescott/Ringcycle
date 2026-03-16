@@ -1,0 +1,84 @@
+extends Resource
+# scripts/data/species/khet/khet_line.tres
+#
+# ---------------------------------------------------------------------------
+# Khet Evolution Line
+# Khet -> Sahu -> Nesut / Mesu-Bathu / Aten-Ka
+#
+# Legend A (Nesut/Pharaoh):
+#   Natural path. Balanced stats + Fame. Easy to discover.
+#   Hint: NPC comments on regal bearing when Charisma and Technique are high.
+#
+# Legend B (Mesu-Bathu/Revenant):
+#   Specialist path. Heavy Power drilling + Charisma neglect.
+#   Hint: NPC mentions the monster seems "angrier" after many Power sessions.
+#
+# Legend C (Aten-Ka/God-King):
+#   Against-grain path. All six stats above threshold simultaneously.
+#   Hardest to hit — natural drift toward specialization fights this.
+#   Hint: Extremely rare. Only a Legend or HoF coach reveals any conditions.
+# ---------------------------------------------------------------------------
+
+class_name EvolutionLineResource
+
+@export var line_id: String      = "khet"
+@export var display_name: String = "Khet"
+
+# --- Forms ---
+@export var form_rookie:   WrestlerSpeciesResource  # khet_rookie.tres
+@export var form_pro:      WrestlerSpeciesResource  # khet_pro.tres
+@export var form_legend_a: WrestlerSpeciesResource  # khet_legend_a.tres
+@export var form_legend_b: WrestlerSpeciesResource  # khet_legend_b.tres
+@export var form_legend_c: WrestlerSpeciesResource  # khet_legend_c.tres
+
+# --- Rookie -> Pro ---
+# Simple age + stat floor. Should happen naturally mid-career.
+@export var conditions_rookie_to_pro: Array[EvolutionCondition] = [
+	# Must have lived at least 1 year
+	preload("res://scripts/data/species/khet/conditions/rtp_age.tres"),
+	# Must be in Rookie stage
+	preload("res://scripts/data/species/khet/conditions/rtp_stage.tres"),
+	# At least two core stats above 100
+	preload("res://scripts/data/species/khet/conditions/rtp_stat_floor.tres"),
+]
+
+# --- Pro -> Legend A (Nesut/Pharaoh) ---
+# Balanced growth rewarded. Charisma, Technique, and Fame thresholds.
+@export var conditions_legend_a: Array[EvolutionCondition] = [
+	preload("res://scripts/data/species/khet/conditions/la_stage.tres"),
+	preload("res://scripts/data/species/khet/conditions/la_power.tres"),
+	preload("res://scripts/data/species/khet/conditions/la_technique.tres"),
+	preload("res://scripts/data/species/khet/conditions/la_toughness.tres"),
+	preload("res://scripts/data/species/khet/conditions/la_stamina.tres"),
+	preload("res://scripts/data/species/khet/conditions/la_charisma.tres"),
+	preload("res://scripts/data/species/khet/conditions/la_fame.tres"),
+]
+
+# --- Pro -> Legend B (Mesu-Bathu/Revenant) ---
+# Heavy Power session count + Charisma neglect.
+@export var conditions_legend_b: Array[EvolutionCondition] = [
+	preload("res://scripts/data/species/khet/conditions/lb_stage.tres"),
+	preload("res://scripts/data/species/khet/conditions/lb_power_sessions.tres"),
+	preload("res://scripts/data/species/khet/conditions/lb_power_stat.tres"),
+	preload("res://scripts/data/species/khet/conditions/lb_charisma_low.tres"),
+]
+
+# --- Pro -> Legend C (Aten-Ka/God-King) ---
+# All six stats above threshold simultaneously. Hardest condition set.
+@export var conditions_legend_c: Array[EvolutionCondition] = [
+	preload("res://scripts/data/species/khet/conditions/lc_stage.tres"),
+	preload("res://scripts/data/species/khet/conditions/lc_power.tres"),
+	preload("res://scripts/data/species/khet/conditions/lc_technique.tres"),
+	preload("res://scripts/data/species/khet/conditions/lc_agility.tres"),
+	preload("res://scripts/data/species/khet/conditions/lc_toughness.tres"),
+	preload("res://scripts/data/species/khet/conditions/lc_stamina.tres"),
+	preload("res://scripts/data/species/khet/conditions/lc_charisma.tres"),
+]
+
+# Legend C wins on simultaneous qualification (rarest wins)
+@export var legend_priority: Array[String] = ["legend_c", "legend_b", "legend_a"]
+
+# Hint reveal levels — what coaches of this line can show
+@export var legend_a_hint_level: String = "vague"   # easy to discover
+@export var legend_b_hint_level: String = "vague"   # NPC hints available
+@export var legend_c_hint_level: String = "none"    # hidden until Legend/HoF coach

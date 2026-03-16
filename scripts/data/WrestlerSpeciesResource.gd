@@ -5,7 +5,7 @@ class_name WrestlerSpeciesResource
 @export var display_name: String
 
 @export var base_stats := {
-	"strength": 50,
+	"power": 50,
 	"technique": 40,
 	"agility": 40,
 	"toughness": 40,
@@ -16,7 +16,7 @@ class_name WrestlerSpeciesResource
 # Baseline growth rates for this species
 # 1.0 = normal, >1 faster, <1 slower
 @export var growth_profile := {
-	"strength": 1.3, 	# ++
+	"power": 1.3, 	# ++
 	"stamina": 0.8,		# -
 	# anything not present defaults to 1.0
 }
