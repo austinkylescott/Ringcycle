@@ -3,8 +3,9 @@
 [ext_resource type="Script" uid="uid://bmrb32yogxde8" path="res://scripts/ui/GymHub.gd" id="1_d3a6v"]
 [ext_resource type="Script" uid="uid://bn6hp8voyikr8" path="res://scripts/core/TrainingSystem.gd" id="2_yogjq"]
 [ext_resource type="Script" uid="uid://cdxybojcabrnp" path="res://scripts/core/CalendarSystem.gd" id="3_slykc"]
+[ext_resource type="Script" uid="uid://b4tnnfh0rs6s0" path="res://scripts/core/CareerSimulator.gd" id="4_sim"]
 
-[node name="GymHub" type="Control"]
+[node name="GymHub" type="Control" unique_id=84860608]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,58 +14,105 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_d3a6v")
 
-[node name="TopBar" type="HBoxContainer" parent="."]
+[node name="TopBar" type="HBoxContainer" parent="." unique_id=100265419]
 layout_mode = 0
 offset_right = 1152.0
 offset_bottom = 40.0
 
-[node name="Label" type="Label" parent="TopBar"]
+[node name="Label" type="Label" parent="TopBar" unique_id=4102431]
 layout_mode = 2
+size_flags_horizontal = 3
+clip_text = true
 
-[node name="Actions" type="VBoxContainer" parent="."]
-layout_mode = 1
-anchors_preset = 4
-anchor_top = 0.5
-anchor_bottom = 0.5
-offset_top = -90.0
-offset_right = 50.0
-offset_bottom = 90.0
-grow_vertical = 2
+[node name="Actions" type="VBoxContainer" parent="." unique_id=288635926]
+layout_mode = 0
+offset_top = 44.0
+offset_right = 120.0
+offset_bottom = 260.0
 
-[node name="TrainButton" type="Button" parent="Actions"]
+[node name="TrainButton" type="Button" parent="Actions" unique_id=1838836040]
 layout_mode = 2
 text = "Train"
 
-[node name="RestButton" type="Button" parent="Actions"]
+[node name="RestButton" type="Button" parent="Actions" unique_id=1465138263]
 layout_mode = 2
 text = "Rest"
 
-[node name="ShowButton" type="Button" parent="Actions"]
+[node name="ShowButton" type="Button" parent="Actions" unique_id=840813169]
 layout_mode = 2
-text = "Show"
+disabled = true
+text = "Show (Soon)"
 
-[node name="TourButton" type="Button" parent="Actions"]
+[node name="TourButton" type="Button" parent="Actions" unique_id=1189807601]
 layout_mode = 2
-text = "Tour"
+disabled = true
+text = "Tour (Soon)"
 
-[node name="TrainingSystem" type="Node" parent="."]
+[node name="RetireButton" type="Button" parent="Actions" unique_id=301944592]
+visible = false
+layout_mode = 2
+text = "Retire"
+
+[node name="SimBar" type="HBoxContainer" parent="." unique_id=1913532906]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 44.0
+offset_right = 700.0
+offset_bottom = 68.0
+
+[node name="SimLabel" type="Label" parent="SimBar" unique_id=802104117]
+layout_mode = 2
+text = "Simulate:"
+vertical_alignment = 1
+
+[node name="Sim1WButton" type="Button" parent="SimBar" unique_id=903277514]
+layout_mode = 2
+text = "1 Week"
+
+[node name="Sim2WButton" type="Button" parent="SimBar" unique_id=2117961284]
+layout_mode = 2
+text = "2 Weeks"
+
+[node name="Sim3WButton" type="Button" parent="SimBar" unique_id=1727380222]
+layout_mode = 2
+text = "3 Weeks"
+
+[node name="Sim4WButton" type="Button" parent="SimBar" unique_id=724228921]
+layout_mode = 2
+text = "4 Weeks"
+
+[node name="Sim1YButton" type="Button" parent="SimBar" unique_id=1707940172]
+layout_mode = 2
+text = "1 Year"
+
+[node name="LogPanel" type="RichTextLabel" parent="." unique_id=1132572186]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.6
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+focus_mode = 2
+scroll_following = true
+selection_enabled = true
+
+[node name="TrainingSystem" type="Node" parent="." unique_id=1798344976]
 script = ExtResource("2_yogjq")
 
-[node name="CalendarSystem" type="Node" parent="."]
+[node name="CalendarSystem" type="Node" parent="." unique_id=981888278]
 script = ExtResource("3_slykc")
 training_system_path = NodePath("../TrainingSystem")
 
-[node name="ModalLayer" type="Control" parent="."]
-custom_minimum_size = Vector2(300, 200)
+[node name="CareerSimulator" type="Node" parent="." unique_id=570705859]
+script = ExtResource("4_sim")
+
+[node name="ModalLayer" type="Control" parent="." unique_id=1917135703]
 layout_mode = 1
-anchors_preset = 6
-anchor_left = 1.0
-anchor_top = 0.5
+anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -100.0
-offset_bottom = 100.0
-grow_horizontal = 0
+anchor_bottom = 1.0
+grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2

@@ -10,6 +10,7 @@
 [ext_resource type="Resource" path="res://scripts/data/species/khet/khet_legend_c.tres" id="7_lc"]
 
 ; --- Rookie to Pro conditions ---
+; Simple age + toughness floor. Should happen naturally in first year.
 
 [sub_resource type="Resource" id="rtp_1"]
 script = ExtResource("2_ec")
@@ -28,6 +29,9 @@ stat = "toughness"
 value = 100.0
 
 ; --- Legend A (Nesut / Pharaoh) conditions ---
+; Natural path. Balanced stats + Fame. A casual player who does shows
+; and trains reasonably will hit this. Thresholds set so that a player
+; who trains varied and attends shows naturally qualifies mid-career.
 
 [sub_resource type="Resource" id="la_1"]
 script = ExtResource("2_ec")
@@ -38,51 +42,54 @@ stage = "Pro"
 script = ExtResource("2_ec")
 type = 0
 stat = "power"
-value = 300.0
-hint_vague = "Needs strong Power..."
-hint_full = "Needs 300 Power"
+value = 250.0
+hint_vague = "Needs solid Power..."
+hint_full = "Needs 250 Power"
 
 [sub_resource type="Resource" id="la_3"]
 script = ExtResource("2_ec")
 type = 0
 stat = "technique"
-value = 300.0
+value = 250.0
 hint_vague = "Needs refined Technique..."
-hint_full = "Needs 300 Technique"
+hint_full = "Needs 250 Technique"
 
 [sub_resource type="Resource" id="la_4"]
 script = ExtResource("2_ec")
 type = 0
 stat = "toughness"
-value = 320.0
+value = 260.0
 hint_vague = "Needs solid Toughness..."
-hint_full = "Needs 320 Toughness"
+hint_full = "Needs 260 Toughness"
 
 [sub_resource type="Resource" id="la_5"]
 script = ExtResource("2_ec")
 type = 0
 stat = "stamina"
-value = 320.0
+value = 260.0
 hint_vague = "Needs enduring Stamina..."
-hint_full = "Needs 320 Stamina"
+hint_full = "Needs 260 Stamina"
 
 [sub_resource type="Resource" id="la_6"]
 script = ExtResource("2_ec")
 type = 0
 stat = "charisma"
-value = 280.0
+value = 230.0
 hint_vague = "Needs commanding Charisma..."
-hint_full = "Needs 280 Charisma"
+hint_full = "Needs 230 Charisma"
 
 [sub_resource type="Resource" id="la_7"]
 script = ExtResource("2_ec")
 type = 7
 stat = "fame"
-value = 50.0
-hint_vague = "Needs a certain fame..."
-hint_full = "Needs 50 Fame"
+value = 40.0
+hint_vague = "Needs to be known..."
+hint_full = "Needs 40 Fame"
 
 ; --- Legend B (Mesu-Bathu / Revenant) conditions ---
+; Specialist path. Heavy Power drilling + Charisma neglect.
+; A player who intentionally focuses on Power and ignores Charisma hits this.
+; Thresholds kept high enough to require genuine specialisation.
 
 [sub_resource type="Resource" id="lb_1"]
 script = ExtResource("2_ec")
@@ -93,27 +100,32 @@ stage = "Pro"
 script = ExtResource("2_ec")
 type = 3
 stat = "power"
-sessions = 40
+sessions = 35
 hint_vague = "Seems to respond to repeated Power training..."
-hint_full = "Needs 40 Power training sessions"
+hint_full = "Needs 35 Power training sessions"
 
 [sub_resource type="Resource" id="lb_3"]
 script = ExtResource("2_ec")
 type = 0
 stat = "power"
-value = 400.0
+value = 380.0
 hint_vague = "Needs very high Power..."
-hint_full = "Needs 400 Power"
+hint_full = "Needs 380 Power"
 
 [sub_resource type="Resource" id="lb_4"]
 script = ExtResource("2_ec")
 type = 1
 stat = "charisma"
-value = 200.0
+value = 180.0
 hint_vague = "Something happens when the crowd doesn't warm to them..."
-hint_full = "Needs Charisma below 200"
+hint_full = "Needs Charisma below 180"
 
 ; --- Legend C (Aten-Ka / God-King) conditions ---
+; Against-grain path. All six stats above threshold AND a championship win.
+; The championship requirement means you can't just train in a gym — you must
+; compete. A player who stumbles into balanced stats but never wins a title
+; will NOT hit this path. Requires intentional engagement with the show system.
+; hint_vague is "???" — this path is deliberately obscure.
 
 [sub_resource type="Resource" id="lc_1"]
 script = ExtResource("2_ec")
@@ -168,6 +180,13 @@ value = 320.0
 hint_vague = "???"
 hint_full = "Needs 320 Charisma"
 
+[sub_resource type="Resource" id="lc_8"]
+script = ExtResource("2_ec")
+type = 6
+event_id = "championship_won"
+hint_vague = "???"
+hint_full = "Must have won a championship"
+
 ; --- Line root ---
 
 [resource]
@@ -182,7 +201,7 @@ form_legend_c = ExtResource("7_lc")
 conditions_rookie_to_pro = [SubResource("rtp_1"), SubResource("rtp_2"), SubResource("rtp_3")]
 conditions_legend_a = [SubResource("la_1"), SubResource("la_2"), SubResource("la_3"), SubResource("la_4"), SubResource("la_5"), SubResource("la_6"), SubResource("la_7")]
 conditions_legend_b = [SubResource("lb_1"), SubResource("lb_2"), SubResource("lb_3"), SubResource("lb_4")]
-conditions_legend_c = [SubResource("lc_1"), SubResource("lc_2"), SubResource("lc_3"), SubResource("lc_4"), SubResource("lc_5"), SubResource("lc_6"), SubResource("lc_7")]
+conditions_legend_c = [SubResource("lc_1"), SubResource("lc_2"), SubResource("lc_3"), SubResource("lc_4"), SubResource("lc_5"), SubResource("lc_6"), SubResource("lc_7"), SubResource("lc_8")]
 legend_priority = ["legend_c", "legend_b", "legend_a"]
 legend_a_hint_level = "vague"
 legend_b_hint_level = "vague"

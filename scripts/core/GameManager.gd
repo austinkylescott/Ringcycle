@@ -2,59 +2,48 @@ extends Node
 class_name GameManager
 
 # ---------------------------------------------------------------------------
-# GameManager is the central game state autoload (alias: GM).
-# It owns the active wrestler, coaching staff, calendar, and Hall of Fame.
+# GameManager — central game state autoload (GM).
 #
-# Other systems access it via the GM autoload:
-#   GM.current_wrestler_node
-#   GM.primary_coach / GM.secondary_coach
-#   GM.day / GM.week / GM.month / GM.year
+# SINGLE SOURCE OF TRUTH FOR TIME:
+#   advance_day(wrestler) — the ONE function that advances both the world
+#   calendar and the wrestler's lifespan. Called exactly once per in-game day
+#   by either CalendarSystem (player) or CareerSimulator (sim). Nothing else
+#   should ever call advance_day() or wrestler.age_one_day() directly.
+#
+# Calendar: tracks world timeline continuously, never resets.
+# Lifespan: tracked on WrestlerResource (days_lived / lifespan_days).
 # ---------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------
-# Active wrestler
-# ---------------------------------------------------------------------------
 var current_wrestler_res:  WrestlerResource
 var current_wrestler_node: Wrestler
 
-
-# ---------------------------------------------------------------------------
-# Calendar
-# day   1–7   (1 = Monday)
-# week  1–4   (weeks within the current month)
-# month 1–12
-# year  1+
-# ---------------------------------------------------------------------------
+# World calendar — continuous, never resets
 var day:   int = 1
 var week:  int = 1
 var month: int = 1
 var year:  int = 1
 
+# Coach queue — index 0 = primary, index 1 = secondary
+var coaches: Array[CoachResource] = []
 
-# ---------------------------------------------------------------------------
-# Coaching staff
-# Two permanent slots. Null means the slot is vacant.
-# ---------------------------------------------------------------------------
-var primary_coach:   CoachResource = null
-var secondary_coach: CoachResource = null
-
-
-# ---------------------------------------------------------------------------
-# Hall of Fame
-# All retired monsters — whether assigned as coaches or not.
-# Never cleared during a playthrough.
-# ---------------------------------------------------------------------------
+# Hall of Fame — all voluntarily retired wrestlers
 var hall_of_fame: Array[CoachResource] = []
 
+# Retire threshold — rolled per wrestler, fuzzy around 50%
+var retire_option_unlocked: bool  = false
+var _retire_threshold_pct:  float = 0.0
 
-# ---------------------------------------------------------------------------
-# Signals
-# ---------------------------------------------------------------------------
 signal day_advanced(day: int, week: int, month: int, year: int)
 signal wrestler_changed(wrestler: Wrestler)
 signal evolution_triggered(wrestler: Wrestler, new_stage: String)
-signal coach_died(coach: CoachResource, slot: String)
-signal coach_assigned(coach: CoachResource, slot: String)
+signal coach_died(coach: CoachResource, slot: int)
+signal coach_assigned(coach: CoachResource, slot: int)
+signal wrestler_retired(wrestler: Wrestler, coach: CoachResource)
+signal wrestler_died(wrestler: Wrestler)
+signal retire_available()
+# Fired when the week rolls over — used by CalendarSystem and CareerSimulator
+# to call TrainingSystem.on_week_start()
+signal week_started(wrestler: Wrestler)
 
 
 # ---------------------------------------------------------------------------
@@ -62,53 +51,108 @@ signal coach_assigned(coach: CoachResource, slot: String)
 # ---------------------------------------------------------------------------
 
 func _ready() -> void:
-	var sr: SpeciesRegistry = _get_species_registry()
+	_start_new_wrestler()
 
-	if sr != null:
-		var species := sr.get_species("rookie")
-		if species != null:
-			var wr := create_wrestler_from_species(species)
-			_load_wrestler_from_resource(wr)
-			return
 
-		var any := sr.get_any_species()
-		if any != null:
-			var wr2 := create_wrestler_from_species(any)
-			_load_wrestler_from_resource(wr2)
-			return
+# ---------------------------------------------------------------------------
+# THE single day-advance function.
+# Advances both the wrestler's lifespan AND the world calendar exactly once.
+# Returns true if the wrestler died this day (caller should stop and handle).
+# ---------------------------------------------------------------------------
 
-	# Final fallback — in-memory default
-	var default_wr        := WrestlerResource.new()
-	default_wr.display_name = "Rookie"
-	default_wr.stage        = "Rookie"
-	default_wr.lifespan_days = 1825
-	_load_wrestler_from_resource(default_wr)
+func advance_day() -> bool:
+	var wrestler := current_wrestler_node
+	if wrestler == null:
+		return false
+
+	# 1. Age the wrestler exactly once
+	wrestler.age_one_day()
+
+	# 2. Death check — if dead, retire and return true so caller can react
+	if wrestler.is_dead():
+		die_current_wrestler()
+		return true
+
+	# 3. Advance world calendar
+	var prev_week := week
+	_tick_calendar()
+
+	# 4. Tick coaches
+	_tick_coaches()
+
+	# 5. Check evolution
+	_check_evolution()
+
+	# 6. Check retire threshold
+	_check_retire_threshold()
+
+	# 7. Week boundary signal
+	if week != prev_week:
+		emit_signal("week_started", current_wrestler_node)
+
+	emit_signal("day_advanced", day, week, month, year)
+	return false
+
+
+# Internal calendar tick — only called from advance_day()
+func _tick_calendar() -> void:
+	day += 1
+	if day > 7:
+		day = 1
+		week += 1
+		if week > 4:
+			week = 1
+			month += 1
+			if month > 12:
+				month = 1
+				year += 1
 
 
 # ---------------------------------------------------------------------------
 # Wrestler creation
 # ---------------------------------------------------------------------------
 
-func create_wrestler_from_species(species: WrestlerSpeciesResource) -> WrestlerResource:
-	var wr      := WrestlerResource.new()
-	wr.species   = species
-	wr.stage     = "Rookie"
+func _start_new_wrestler() -> void:
+	_retire_threshold_pct  = randf_range(0.45, 0.55)
+	retire_option_unlocked = false
 
-	# Apply base stats with small random variance
+	var rookies: Array = SR.get_all_species().filter(
+		func(s: WrestlerSpeciesResource): return s.stage == "Rookie"
+	)
+	var valid_rookies: Array = rookies.filter(func(s: WrestlerSpeciesResource):
+		return ES.get_line_for_species(s.id) != null
+	)
+
+	if not valid_rookies.is_empty():
+		var species: WrestlerSpeciesResource = valid_rookies[randi() % valid_rookies.size()]
+		var wr := create_wrestler_from_species(species)
+		_load_wrestler_from_resource(wr)
+		return
+
+	push_warning("GameManager: no valid rookie species found with a complete evolution line")
+	var default_wr          := WrestlerResource.new()
+	default_wr.display_name = "Unknown"
+	default_wr.stage        = "Rookie"
+	default_wr.lifespan_days = 1825
+	_load_wrestler_from_resource(default_wr)
+
+
+func create_wrestler_from_species(species: WrestlerSpeciesResource) -> WrestlerResource:
+	var wr         := WrestlerResource.new()
+	wr.species      = species
+	wr.stage        = "Rookie"
+	wr.display_name = species.display_name
+
 	for key in StatDefs.CORE:
 		var base: int = species.base_stats.get(key, 40)
 		wr.set(key, base + randi_range(-5, 5))
 
-	# Roll lifespan from species distribution
 	wr.lifespan_days = _roll_lifespan(species)
 
-	# Assign a random starting personality
 	var all_personalities := PersonalityDefs.all_ids()
-	# Exclude pinnacle state — Legendary is earn-only
 	var eligible := all_personalities.filter(func(p): return p != "legendary")
 	wr.personality = eligible[randi() % eligible.size()]
 
-	# Initialise empty career tracking dictionaries
 	wr.training_session_counts = {}
 	wr.personality_pressure    = {}
 	wr.events_triggered        = []
@@ -123,18 +167,6 @@ func _roll_lifespan(species: WrestlerSpeciesResource) -> int:
 	return max(species.lifespan_min, species.lifespan_base + roll)
 
 
-# ---------------------------------------------------------------------------
-# Wrestler loading
-# ---------------------------------------------------------------------------
-
-func load_new_wrestler(path: String) -> void:
-	var res := load(path) as WrestlerResource
-	if res == null:
-		push_warning("GameManager.load_new_wrestler: failed to load '%s'" % path)
-		return
-	_load_wrestler_from_resource(res)
-
-
 func _load_wrestler_from_resource(res: WrestlerResource) -> void:
 	current_wrestler_res = res
 	if is_instance_valid(current_wrestler_node):
@@ -145,119 +177,133 @@ func _load_wrestler_from_resource(res: WrestlerResource) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Daily advance
-# Called by CalendarSystem.after_action_advance() each in-game day.
-# Handles calendar rollover, coach aging, and evolution checks.
+# Retirement
 # ---------------------------------------------------------------------------
 
-func advance_day() -> void:
-	# Advance calendar
-	day += 1
-	if day > 7:
-		day = 1
-		week += 1
-		if week > 4:
-			week = 1
-			month += 1
-			if month > 12:
-				month = 1
-				year += 1
-
-	# Tick coach lifespans
-	_tick_coaches()
-
-	# Check evolution after every day
-	_check_evolution()
-
-	emit_signal("day_advanced", day, week, month, year)
-
-
-# ---------------------------------------------------------------------------
-# Coach management
-# ---------------------------------------------------------------------------
-
-# Assigns a coach to the primary or secondary slot.
-# slot: "primary" or "secondary"
-func assign_coach(coach: CoachResource, slot: String) -> void:
-	if slot == "primary":
-		primary_coach = coach
-	elif slot == "secondary":
-		secondary_coach = coach
-	else:
-		push_warning("GameManager.assign_coach: invalid slot '%s'" % slot)
+func voluntary_retire() -> void:
+	if current_wrestler_node == null:
 		return
-	emit_signal("coach_assigned", coach, slot)
+
+	var coach := CoachResource.from_wrestler(current_wrestler_node)
+	add_to_hall_of_fame(coach)
+	_assign_coach_to_queue(coach)
+
+	SL.log_event("RETIRED — %s | Stage: %s | Coach bonus: %s +%d | Days remaining: %d" % [
+		current_wrestler_node.get_display_name(),
+		current_wrestler_node.get_stage(),
+		coach.bonus_stat, coach.bonus_value,
+		coach.days_remaining,
+	])
+
+	emit_signal("wrestler_retired", current_wrestler_node, coach)
+	_start_new_wrestler()
 
 
-# Releases a coach from their slot. The slot becomes null (vacant).
-# The coach is not removed from the Hall of Fame.
-func release_coach(slot: String) -> void:
-	if slot == "primary":
-		primary_coach = null
-	elif slot == "secondary":
-		secondary_coach = null
+func die_current_wrestler() -> void:
+	if current_wrestler_node == null:
+		return
+
+	SL.log_event("DIED — %s | Stage: %s | No coach created" % [
+		current_wrestler_node.get_display_name(),
+		current_wrestler_node.get_stage(),
+	])
+
+	emit_signal("wrestler_died", current_wrestler_node)
+	_start_new_wrestler()
+
+
+# ---------------------------------------------------------------------------
+# Retire threshold
+# ---------------------------------------------------------------------------
+
+func _check_retire_threshold() -> void:
+	if retire_option_unlocked:
+		return
+	if current_wrestler_node == null:
+		return
+
+	var res := current_wrestler_node.res
+	if res == null:
+		return
+
+	var original_lifespan := res.days_lived + res.lifespan_days
+	if original_lifespan <= 0:
+		return
+
+	if res.days_lived >= original_lifespan * _retire_threshold_pct:
+		retire_option_unlocked = true
+		emit_signal("retire_available")
+
+
+# ---------------------------------------------------------------------------
+# Coach queue
+# ---------------------------------------------------------------------------
+
+func _assign_coach_to_queue(coach: CoachResource) -> void:
+	if coaches.size() < 2:
+		coaches.append(coach)
+		emit_signal("coach_assigned", coach, coaches.size() - 1)
 	else:
-		push_warning("GameManager.release_coach: invalid slot '%s'" % slot)
+		coaches[1] = coach
+		emit_signal("coach_assigned", coach, 1)
 
 
-# Adds a retired wrestler to the Hall of Fame.
-# Call this at retirement regardless of whether they become a coach.
+func get_primary_coach() -> CoachResource:
+	return coaches[0] if coaches.size() > 0 else null
+
+
+func get_secondary_coach() -> CoachResource:
+	return coaches[1] if coaches.size() > 1 else null
+
+
+func get_active_coaches() -> Array[CoachResource]:
+	return coaches.duplicate()
+
+
+func _promote_coaches() -> void:
+	var alive: Array[CoachResource] = []
+	for c in coaches:
+		if c != null:
+			alive.append(c)
+	coaches = alive
+
+
+func _tick_coaches() -> void:
+	var died_indices: Array[int] = []
+	for i in range(coaches.size()):
+		coaches[i].days_remaining -= 1
+		if coaches[i].days_remaining <= 0:
+			died_indices.append(i)
+	for i in died_indices:
+		emit_signal("coach_died", coaches[i], i)
+		coaches[i] = null
+	if not died_indices.is_empty():
+		_promote_coaches()
+
+
+# ---------------------------------------------------------------------------
+# Hall of Fame
+# ---------------------------------------------------------------------------
+
 func add_to_hall_of_fame(coach: CoachResource) -> void:
 	hall_of_fame.append(coach)
 
 
-# Returns both active coaches as an array, filtering null slots.
-func get_active_coaches() -> Array[CoachResource]:
-	var result: Array[CoachResource] = []
-	if primary_coach != null:
-		result.append(primary_coach)
-	if secondary_coach != null:
-		result.append(secondary_coach)
-	return result
-
-
-# Ticks coach lifespan each day. Removes coaches who have died.
-func _tick_coaches() -> void:
-	if primary_coach != null:
-		primary_coach.days_remaining -= 1
-		if primary_coach.days_remaining <= 0:
-			emit_signal("coach_died", primary_coach, "primary")
-			primary_coach = null
-
-	if secondary_coach != null:
-		secondary_coach.days_remaining -= 1
-		if secondary_coach.days_remaining <= 0:
-			emit_signal("coach_died", secondary_coach, "secondary")
-			secondary_coach = null
-
-
 # ---------------------------------------------------------------------------
 # Evolution check
-# Delegates to EvolutionSystem autoload if available.
 # ---------------------------------------------------------------------------
 
 func _check_evolution() -> void:
 	if current_wrestler_node == null:
 		return
-	if not has_node("/root/ES"):
-		return
-
-	var es := get_node("/root/ES") as EvolutionSystem
-	if es == null:
-		return
-
-	var new_stage := es.check_evolution(current_wrestler_node)
+	var new_stage := ES.check_evolution(current_wrestler_node)
 	if new_stage != "":
 		emit_signal("evolution_triggered", current_wrestler_node, new_stage)
 
 
 # ---------------------------------------------------------------------------
-# Internal helpers
+# Legacy shim — CalendarSystem used to call this
 # ---------------------------------------------------------------------------
 
-func _get_species_registry() -> SpeciesRegistry:
-	if has_node("/root/SR"):
-		return get_node("/root/SR") as SpeciesRegistry
-	if has_node("/root/SpeciesRegistry"):
-		return get_node("/root/SpeciesRegistry") as SpeciesRegistry
-	return null
+func retire_current_wrestler() -> void:
+	die_current_wrestler()
