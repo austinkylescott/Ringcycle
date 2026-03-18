@@ -28,7 +28,7 @@ clip_text = true
 layout_mode = 0
 offset_top = 44.0
 offset_right = 120.0
-offset_bottom = 260.0
+offset_bottom = 300.0
 
 [node name="TrainButton" type="Button" parent="Actions" unique_id=1838836040]
 layout_mode = 2
@@ -40,8 +40,11 @@ text = "Rest"
 
 [node name="ShowButton" type="Button" parent="Actions" unique_id=840813169]
 layout_mode = 2
-disabled = true
-text = "Show (Soon)"
+text = "Attend Show"
+
+[node name="HeadlinesButton" type="Button" parent="Actions" unique_id=1189807602]
+layout_mode = 2
+text = "Headlines"
 
 [node name="TourButton" type="Button" parent="Actions" unique_id=1189807601]
 layout_mode = 2
@@ -84,6 +87,18 @@ text = "4 Weeks"
 [node name="Sim1YButton" type="Button" parent="SimBar" unique_id=1707940172]
 layout_mode = 2
 text = "1 Year"
+
+[node name="ContractBar" type="HBoxContainer" parent="." unique_id=1913532907]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 72.0
+offset_right = 700.0
+offset_bottom = 96.0
+
+[node name="ContractLabel" type="Label" parent="ContractBar" unique_id=802104118]
+layout_mode = 2
+text = "Contract: None (Indie)"
+vertical_alignment = 1
 
 [node name="LogPanel" type="RichTextLabel" parent="." unique_id=1132572186]
 layout_mode = 1

@@ -5,13 +5,17 @@ class_name GameManager
 # GameManager — central game state autoload (GM).
 #
 # SINGLE SOURCE OF TRUTH FOR TIME:
-#   advance_day(wrestler) — the ONE function that advances both the world
+#   advance_day() — the ONE function that advances both the world
 #   calendar and the wrestler's lifespan. Called exactly once per in-game day
 #   by either CalendarSystem (player) or CareerSimulator (sim). Nothing else
 #   should ever call advance_day() or wrestler.age_one_day() directly.
 #
 # Calendar: tracks world timeline continuously, never resets.
 # Lifespan: tracked on WrestlerResource (days_lived / lifespan_days).
+#
+# RosterManager integration:
+#   RM.tick_day() is called once per advance_day() after the calendar tick.
+#   RM.tick_week() is called once per week boundary after week_started fires.
 # ---------------------------------------------------------------------------
 
 var current_wrestler_res:  WrestlerResource
@@ -33,6 +37,22 @@ var hall_of_fame: Array[CoachResource] = []
 var retire_option_unlocked: bool  = false
 var _retire_threshold_pct:  float = 0.0
 
+# ---------------------------------------------------------------------------
+# Player contract state
+# Empty strings mean the player is unsigned (indie / working the circuit).
+# ---------------------------------------------------------------------------
+var contracted_promotion_id: String = ""   # id of signed promotion, or ""
+var contract_shows_attended: int    = 0    # shows attended under current contract
+
+# ---------------------------------------------------------------------------
+# Player relationship registry
+# Keyed by NPC id. Value is a RelationshipRecord.
+# All relationship reads/writes for the player wrestler go through GM
+# so they persist across wrestler deaths and retirements.
+# ---------------------------------------------------------------------------
+var player_relationships: Dictionary = {}  # npc_id -> RelationshipRecord
+
+
 signal day_advanced(day: int, week: int, month: int, year: int)
 signal wrestler_changed(wrestler: Wrestler)
 signal evolution_triggered(wrestler: Wrestler, new_stage: String)
@@ -41,9 +61,10 @@ signal coach_assigned(coach: CoachResource, slot: int)
 signal wrestler_retired(wrestler: Wrestler, coach: CoachResource)
 signal wrestler_died(wrestler: Wrestler)
 signal retire_available()
-# Fired when the week rolls over — used by CalendarSystem and CareerSimulator
-# to call TrainingSystem.on_week_start()
 signal week_started(wrestler: Wrestler)
+signal contract_offered(promotion: PromotionResource)
+signal contract_signed(promotion: PromotionResource)
+signal contract_released(promotion_id: String)
 
 
 # ---------------------------------------------------------------------------
@@ -61,7 +82,7 @@ func _ready() -> void:
 # ---------------------------------------------------------------------------
 
 func advance_day() -> bool:
-	var wrestler := current_wrestler_node
+	var wrestler: Wrestler = current_wrestler_node
 	if wrestler == null:
 		return false
 
@@ -74,21 +95,28 @@ func advance_day() -> bool:
 		return true
 
 	# 3. Advance world calendar
-	var prev_week := week
+	var prev_week: int = week
 	_tick_calendar()
 
 	# 4. Tick coaches
 	_tick_coaches()
 
-	# 5. Check evolution
+	# 5. Tick the world roster — NPC aging, death, anchor replacement
+	if has_node("/root/RM"):
+		var rm: RosterManager = get_node("/root/RM") as RosterManager
+		if rm != null:
+			rm.tick_day()
+
+	# 6. Check evolution
 	_check_evolution()
 
-	# 6. Check retire threshold
+	# 7. Check retire threshold
 	_check_retire_threshold()
 
-	# 7. Week boundary signal
+	# 8. Week boundary — fire signal and tick week-level systems
 	if week != prev_week:
 		emit_signal("week_started", current_wrestler_node)
+		_on_week_boundary()
 
 	emit_signal("day_advanced", day, week, month, year)
 	return false
@@ -106,6 +134,169 @@ func _tick_calendar() -> void:
 			if month > 12:
 				month = 1
 				year += 1
+
+
+# Called once per week boundary from advance_day()
+func _on_week_boundary() -> void:
+	# Tick week-level roster logic (relationship decay, NPC promotion checks)
+	if has_node("/root/RM"):
+		var rm: RosterManager = get_node("/root/RM") as RosterManager
+		if rm != null:
+			rm.tick_week()
+
+	# Decay player relationships
+	_tick_player_relationships()
+
+	# Check for contract offer eligibility
+	_check_contract_offer()
+
+
+# ---------------------------------------------------------------------------
+# Player relationship management
+# ---------------------------------------------------------------------------
+
+# Returns the player's relationship record with a given NPC.
+# Creates a new Stranger record if none exists.
+func get_player_relationship(npc_id: String) -> RelationshipRecord:
+	if not player_relationships.has(npc_id):
+		var npc: NPCResource = null
+		if has_node("/root/RM"):
+			var rm: RosterManager = get_node("/root/RM") as RosterManager
+			if rm != null:
+				npc = rm.get_npc(npc_id)
+		var npc_name: String = npc.display_name if npc != null else npc_id
+		var rel: RelationshipRecord = RelationshipRecord.create(npc_id, npc_name, _absolute_week())
+		player_relationships[npc_id] = rel
+	return player_relationships[npc_id]
+
+
+# Records a show interaction between the player and an NPC.
+# Called by ShowManager after resolving each show event.
+func record_player_interaction(npc_id: String, event_type: String) -> void:
+	var rel: RelationshipRecord = get_player_relationship(npc_id)
+	rel.record_interaction(event_type, _absolute_week())
+
+
+func _tick_player_relationships() -> void:
+	var current_week := _absolute_week()
+	for rel in player_relationships.values():
+		rel.tick_decay(current_week)
+
+
+# Returns all player relationships sorted by intensity descending.
+func get_player_relationships_sorted() -> Array:
+	var rels := player_relationships.values()
+	rels.sort_custom(func(a: RelationshipRecord, b: RelationshipRecord):
+		return a.intensity > b.intensity
+	)
+	return rels
+
+
+# Returns player relationships of a specific type.
+func get_player_relationships_of_type(type: String) -> Array:
+	return player_relationships.values().filter(
+		func(r: RelationshipRecord): return r.type == type
+	)
+
+
+# ---------------------------------------------------------------------------
+# Contract management
+# ---------------------------------------------------------------------------
+
+func sign_contract(promotion_id: String) -> void:
+	contracted_promotion_id = promotion_id
+	contract_shows_attended = 0
+	var promo := _get_rm_promotion(promotion_id)
+	if promo != null:
+		emit_signal("contract_signed", promo)
+		SL.log_event("CONTRACT SIGNED — %s" % promo.display_name)
+
+
+func release_contract() -> void:
+	var old_id := contracted_promotion_id
+	contracted_promotion_id = ""
+	contract_shows_attended = 0
+	emit_signal("contract_released", old_id)
+
+
+func is_contracted() -> bool:
+	return contracted_promotion_id != ""
+
+
+func get_contracted_promotion() -> PromotionResource:
+	return _get_rm_promotion(contracted_promotion_id)
+
+
+# ---------------------------------------------------------------------------
+# Contract offer logic
+# Called weekly. Checks if the player has earned a contract offer.
+# Phase 1: one offer threshold per rank based on fame and wins.
+# ---------------------------------------------------------------------------
+
+func _check_contract_offer() -> void:
+	# Already contracted — no new offers
+	if is_contracted():
+		return
+
+	var wrestler: Wrestler = current_wrestler_node
+	if wrestler == null:
+		return
+
+	var fame  := int(wrestler.get_stat("fame"))
+	var rank  := _get_player_rank()
+
+	# Fame threshold to attract a contract offer, per rank
+	# These are low for Phase 1 — tune during playtesting
+	var fame_threshold := _contract_fame_threshold(rank)
+	if fame < fame_threshold:
+		return
+
+	# Find the appropriate promotion for the player's rank
+	if not has_node("/root/RM"):
+		return
+	var rm: RosterManager = get_node("/root/RM") as RosterManager
+	if rm == null:
+		return
+
+	var promo := rm.get_promotion_for_rank(rank)
+	if promo == null:
+		return
+
+	# Don't offer repeatedly — check if we've offered this one recently
+	# Phase 2 will track offer history; for now just emit once per fame threshold
+	emit_signal("contract_offered", promo)
+	SL.log_event("CONTRACT OFFER — %s (Fame: %d)" % [promo.display_name, fame])
+
+
+func _contract_fame_threshold(rank: String) -> int:
+	match rank:
+		"E": return 15
+		"D": return 30
+		"C": return 45
+		"B": return 60
+		"A": return 75
+		"S": return 90
+	return 999
+
+
+# Returns the player's current competitive rank based on fame.
+# Phase 2 will use a more nuanced rank system tied to contracts and wins.
+func _get_player_rank() -> String:
+	var wrestler: Wrestler = current_wrestler_node
+	if wrestler == null:
+		return "E"
+	var fame := int(wrestler.get_stat("fame"))
+	if fame >= 85: return "S"
+	if fame >= 70: return "A"
+	if fame >= 55: return "B"
+	if fame >= 40: return "C"
+	if fame >= 20: return "D"
+	return "E"
+
+
+# Public accessor used by ShowManager and UI
+func get_player_rank() -> String:
+	return _get_player_rank()
 
 
 # ---------------------------------------------------------------------------
@@ -196,6 +387,7 @@ func voluntary_retire() -> void:
 	])
 
 	emit_signal("wrestler_retired", current_wrestler_node, coach)
+	release_contract()
 	_start_new_wrestler()
 
 
@@ -209,6 +401,7 @@ func die_current_wrestler() -> void:
 	])
 
 	emit_signal("wrestler_died", current_wrestler_node)
+	release_contract()
 	_start_new_wrestler()
 
 
@@ -299,6 +492,23 @@ func _check_evolution() -> void:
 	var new_stage := ES.check_evolution(current_wrestler_node)
 	if new_stage != "":
 		emit_signal("evolution_triggered", current_wrestler_node, new_stage)
+
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
+
+func _get_rm_promotion(promo_id: String) -> PromotionResource:
+	if promo_id == "" or not has_node("/root/RM"):
+		return null
+	var rm: RosterManager = get_node("/root/RM") as RosterManager
+	if rm == null:
+		return null
+	return rm.get_promotion(promo_id)
+
+
+func _absolute_week() -> int:
+	return ((year - 1) * 48) + ((month - 1) * 4) + week
 
 
 # ---------------------------------------------------------------------------
